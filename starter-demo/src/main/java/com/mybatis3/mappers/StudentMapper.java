@@ -4,11 +4,6 @@ import java.util.List;
 
 import com.mybatis3.domain.Student;
 
-
-/**
- * @author Siva
- *
- */
 public interface StudentMapper
 {
 

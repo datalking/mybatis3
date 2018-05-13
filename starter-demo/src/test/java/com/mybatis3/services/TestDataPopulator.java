@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.mybatis3.services;
 
 import java.io.Reader;
@@ -13,18 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import com.mybatis3.util.MyBatisSqlSessionFactory;
 
-/**
- * @author Siva
- *
- */
-public class TestDataPopulator 
+public class TestDataPopulator
 {
 	private static Logger logger = LoggerFactory.getLogger(TestDataPopulator.class);
-	
+
 	public static void main(String[] args) {
 		initDatabase();
 	}
-	
+
 	public static void initDatabase()
 	{
 		Connection connection = null;
@@ -47,6 +40,6 @@ public class TestDataPopulator
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 }

@@ -10,15 +10,10 @@ import com.mybatis3.domain.Student;
 import com.mybatis3.mappers.StudentMapper;
 import com.mybatis3.util.MyBatisSqlSessionFactory;
 
-
-/**
- * @author Siva
- *
- */
-public class StudentService 
+public class StudentService
 {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	public List<Student> findAllStudents()
 	{
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
@@ -29,7 +24,7 @@ public class StudentService
 			sqlSession.close();
 		}
 	}
-	
+
 	public Student findStudentById(Integer studId)
 	{
 		logger.debug("Select Student By ID :{}", studId);
@@ -42,7 +37,7 @@ public class StudentService
 			sqlSession.close();
 		}
 	}
-	
+
 	public void createStudent(Student student)
 	{
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
@@ -54,7 +49,7 @@ public class StudentService
 			sqlSession.close();
 		}
 	}
-	
+
 	public void updateStudent(Student student)
 	{
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();

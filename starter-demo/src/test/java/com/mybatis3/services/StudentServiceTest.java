@@ -11,10 +11,6 @@ import static org.junit.Assert.*;
 
 import com.mybatis3.domain.Student;
 
-
-/**
- * @author Siva
- */
 public class StudentServiceTest {
     private static StudentService studentService;
 

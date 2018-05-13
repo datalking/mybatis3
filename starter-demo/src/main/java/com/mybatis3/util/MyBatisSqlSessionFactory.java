@@ -16,6 +16,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
  * @author Siva
  */
 public class MyBatisSqlSessionFactory {
+
     private static SqlSessionFactory sqlSessionFactory;
 
     private static final Properties PROPERTIES = new Properties();
@@ -67,4 +68,5 @@ public class MyBatisSqlSessionFactory {
         }
         return connection;
     }
+
 }

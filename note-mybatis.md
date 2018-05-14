@@ -8,7 +8,8 @@ orm映射、查询缓存、动态sql、二级缓存
     - 建造者  
       
     结构型    
-    - 适配器   
+    - 适配器
+    - 组合模式：SqlNode   
           
     行为型      
     - 观察者  
@@ -27,7 +28,12 @@ orm映射、查询缓存、动态sql、二级缓存
         - 日志管理
         - 配置解析
         - scripting生成动态sql
-        - sql执行：parameterHandler、statementHandler、executor、resultHandler
+        - sql执行：parameterHandler、statementHandler、executor、resultSetHandler
+
+
+- 为什么要在事务提交时才将 TransactionalCache.entriesToAddOnCommit 集合中缓存的数据写入到二级缓存，
+  而不是像一级缓存那样，将每次查询结果都直接写入二级缓存？   
+  为了防止脏读，实现不可重复读    
 
 - mybatis原理 Java程序中如何加载上述配置文件以及如何使用MyBatis的API
     - 应用程序首先会加载 mybatis-config.xml 配置文件，井根据配置文件的内容创建 SqlSessionFactory 对象
@@ -50,10 +56,9 @@ orm映射、查询缓存、动态sql、二级缓存
 
 - resultMap和ParameterMap书写拼写要使用#{}，resultType 和parameterType类型使用${}，使用例子如下：  
     `Select ID，COMMAND from Message where COMMAND=#{command}`  
-    `Select ID，COMMAND from Message where COMMAND=‘${command}`  
+    `Select ID，COMMAND from Message where COMMAND=${command}`  
     前者解析为： `Select ID，COMMAND from Message where COMMAND=?` 具有预编译效果  
     后者解析为： `Select ID，COMMAND from Message where COMMAND=段子` 不具有预编译效果    
-      
 
 - ResultMaps 被用来 将 SQL SELECT 语句的结果集映射到 JavaBeans 的属性中
 
@@ -62,15 +67,14 @@ orm映射、查询缓存、动态sql、二级缓存
 同样地，当从 SQL 结果集构 建 JavaBean 时，也有类似的过程。
 
 - jdbc需要使用大量重复代码
+    - 注册驱动
     - 创建连接
     - 创建statement
-    - 设置参数
+    - 设置参数，执行sql
+    - 获取结果
     - 关闭资源
-    - 管理资源    
-MyBatis 抽象了上述的这些相同的任务，如准备需要被执行的 SQL statement 对象并且将 Java 对象作为输入数据 传递给 statement 对象的任务，进而开发人员可以专注于真正重要的方面。   
+MyBatis 抽象了上述的这些相同的任务，如准备需要被执行的 SQL statement 对象并且将 Java 对象作为输入数据 传递给 statement 对象的任务，进而开发人员可以专注于真正重要的方面。     
 MyBatis 自动化了将从输入的 Java 对象中的属性设置成查询参数、从 SQL 结果集上生成 Java 对象这两个过程。  
-
-
 
 - ibatis 2 dao is deprecated    
 Eventually iBATIS DAO was deprecated, considering that better DAO frameworks were available, such as Spring Framework.

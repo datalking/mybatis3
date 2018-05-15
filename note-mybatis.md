@@ -2,22 +2,59 @@
 orm映射、查询缓存、动态sql、二级缓存
 
 
-- mybatis 设计模式  
-    创建型   
-    - 单例
-    - 建造者  
+#### 常用设计模式  
+
+- 简单工厂
+- 工厂方法
+    - mybatis DataSourceFactory
+    - mybatis SqlSessionFactory
+- 抽象工厂
+- 单例
+    - mybatis Configuration
+- 建造者
+    - mybatis XMLConfigBuilder
+- 原型  
       
-    结构型    
-    - 适配器
-    - 组合模式：SqlNode   
-          
-    行为型      
-    - 观察者  
+--------   
+
+- 适配器
+    - mybatis RoutingStatementHandler 
+    - mybatis 日志适配器
+- 装饰器
+    - mybatis 缓存
+- 组合
+    - SqlNode, SqlSource   
+- 代理
+    - mybatis mapper接口的代理对象
+    - jdk动态代理
+    - cglib, javaassist代理
+- 桥接
+- 享元
+- 外观/门面
+
+--------   
+
+- 模板方法
+    - mybatis BaseExecutor
+- 策略
+    - mybatis SqlSession
+- 迭代器
+    - jdk iterator
+- 职责链
+    - mybatis interceptor
+- 观察者
+- 访问者
+- 中介者
+- 命令
+    - mybatis MapperMethod
+- 状态
+- 解释器
+- 备忘录    
     
 
 - mybatis架构
     - 接口层
-        - sqlSession
+        - SqlSession四大对象：parameterHandler、statementHandler、executor、resultSetHandler
     - 处理层
         - 二级缓存
         - 类型转换
@@ -28,7 +65,6 @@ orm映射、查询缓存、动态sql、二级缓存
         - 日志管理
         - 配置解析
         - scripting生成动态sql
-        - sql执行：parameterHandler、statementHandler、executor、resultSetHandler
 
 
 - 为什么要在事务提交时才将 TransactionalCache.entriesToAddOnCommit 集合中缓存的数据写入到二级缓存，

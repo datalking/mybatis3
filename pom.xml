@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <name>mybatis</name>
-    <description>makes it easier to use a relational database with object-oriented applications.</description>
+    <description>mybatis makes it easier to use a relational database with object-oriented applications.</description>
     <url>http://www.mybatis.org/mybatis-3</url>
     <inceptionYear>2009</inceptionYear>
 
@@ -19,17 +19,26 @@
         <maven.compiler.testCompilerArgument>-parameters</maven.compiler.testCompilerArgument>
         <clirr.comparisonVersion>3.3.1</clirr.comparisonVersion>
         <findbugs.onlyAnalyze>org.apache.ibatis.*</findbugs.onlyAnalyze>
-        <osgi.export>org.apache.ibatis.*;version=${project.version};-noimport:=true</osgi.export>
-        <osgi.import>*;resolution:=optional</osgi.import>
-        <osgi.dynamicImport>*</osgi.dynamicImport>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-typehandlers-jsr310</artifactId>
+            <version>1.0.2</version>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>3.1.14</version>
             <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.2.5</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -39,12 +48,7 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-typehandlers-jsr310</artifactId>
-            <version>1.0.2</version>
-            <optional>true</optional>
-        </dependency>
+        <!--logging-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -76,18 +80,11 @@
             <version>1.2</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.2.5</version>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-
+                <version>3.5.1</version>
                 <configuration>
                     <testCompilerArgument>${maven.compiler.testCompilerArgument}</testCompilerArgument>
                     <source>1.8</source>
@@ -152,8 +149,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <excludedGroups>${maven.surefire.excludeGroups}</excludedGroups>
-                    <argLine>${argLine} -Xmx2048m</argLine>
+                    <!--<excludedGroups>${maven.surefire.excludeGroups}</excludedGroups>-->
+                    <!--<argLine>${argLine} -Xmx2048m</argLine>-->
                     <systemProperties>
                         <property>
                             <name>derby.stream.error.file</name>

@@ -23,6 +23,7 @@ import java.sql.Time;
 import java.util.Date;
 
 /**
+ * 仅时间不含日期类型的处理
  * @author Clinton Begin
  */
 public class TimeOnlyTypeHandler extends BaseTypeHandler<Date> {

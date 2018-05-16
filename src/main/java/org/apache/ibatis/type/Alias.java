@@ -22,6 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 在类上指定该类别名
+ *
  * @author Clinton Begin
  */
 @Documented

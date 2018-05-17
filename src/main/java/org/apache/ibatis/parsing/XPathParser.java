@@ -40,16 +40,22 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * 基于xpath的解析器
+ * 基于xpath解析xml
  *
  * @author Clinton Begin
  */
 public class XPathParser {
 
     private Document document;
+
     private boolean validation;
+
+    // 用于加载本地dtd文件
     private EntityResolver entityResolver;
+
+    // mybatis-config.xml 中<propteries>标签定义的键值对
     private Properties variables;
+
     private XPath xpath;
 
     public XPathParser(String xml) {
@@ -219,8 +225,12 @@ public class XPathParser {
         return new XNode(this, node, variables);
     }
 
+    /**
+     * 查找指定路径的节点或属性
+     */
     private Object evaluate(String expression, Object root, QName returnType) {
         try {
+
             return xpath.evaluate(expression, root, returnType);
         } catch (Exception e) {
             throw new BuilderException("Error evaluating XPath.  Cause: " + e, e);

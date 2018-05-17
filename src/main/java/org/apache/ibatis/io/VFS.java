@@ -45,7 +45,7 @@ public abstract class VFS {
     /**
      * The list to which implementations are added by {@link #addImplClass(Class)}.
      */
-    public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
+    public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
 
     /**
      * Singleton instance.

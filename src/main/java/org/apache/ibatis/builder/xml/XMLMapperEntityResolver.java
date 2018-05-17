@@ -25,11 +25,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * 主要用于离线解析xml配置文件 mybatis-config.xml, XxxMapper.xml
+ * 离线解析mybatis的xml配置文件
+ * 包括mybatis-config.xml和XxxMapper.xml
+ * <p>
  * Offline entity resolver for the MyBatis DTDs
  *
- * @author Clinton Begin
- * @author Eduardo Macarron
+ * @author Clinton Begin, Eduardo Macarron
  */
 public class XMLMapperEntityResolver implements EntityResolver {
 
@@ -38,6 +39,7 @@ public class XMLMapperEntityResolver implements EntityResolver {
     private static final String MYBATIS_CONFIG_SYSTEM = "mybatis-3-config.dtd";
     private static final String MYBATIS_MAPPER_SYSTEM = "mybatis-3-mapper.dtd";
 
+    // xml规则定义 本地路径
     private static final String MYBATIS_CONFIG_DTD = "org/apache/ibatis/builder/xml/mybatis-3-config.dtd";
     private static final String MYBATIS_MAPPER_DTD = "org/apache/ibatis/builder/xml/mybatis-3-mapper.dtd";
 
@@ -54,9 +56,12 @@ public class XMLMapperEntityResolver implements EntityResolver {
         try {
             if (systemId != null) {
                 String lowerCaseSystemId = systemId.toLowerCase(Locale.ENGLISH);
+
                 if (lowerCaseSystemId.contains(MYBATIS_CONFIG_SYSTEM) || lowerCaseSystemId.contains(IBATIS_CONFIG_SYSTEM)) {
+
                     return getInputSource(MYBATIS_CONFIG_DTD, publicId, systemId);
                 } else if (lowerCaseSystemId.contains(MYBATIS_MAPPER_SYSTEM) || lowerCaseSystemId.contains(IBATIS_MAPPER_SYSTEM)) {
+
                     return getInputSource(MYBATIS_MAPPER_DTD, publicId, systemId);
                 }
             }

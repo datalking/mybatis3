@@ -12,7 +12,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-public class MyBatisSqlSessionFactory {
+/**
+ * mybatis SqlSession操作 工具类
+ */
+public abstract class MyBatisSqlSessionFactory {
 
     private static SqlSessionFactory sqlSessionFactory;
 

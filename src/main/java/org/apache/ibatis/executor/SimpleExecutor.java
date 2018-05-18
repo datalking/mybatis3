@@ -33,6 +33,7 @@ import java.util.List;
 
 /**
  * 最简单的执行器
+ * 不支持批处理sql
  *
  * @author Clinton Begin
  */
@@ -62,7 +63,7 @@ public class SimpleExecutor extends BaseExecutor {
             Configuration configuration = ms.getConfiguration();
             StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
             stmt = prepareStatement(handler, ms.getStatementLog());
-            return handler.<E>query(stmt, resultHandler);
+            return handler.query(stmt, resultHandler);
         } finally {
             closeStatement(stmt);
         }
@@ -73,17 +74,19 @@ public class SimpleExecutor extends BaseExecutor {
         Configuration configuration = ms.getConfiguration();
         StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, null, boundSql);
         Statement stmt = prepareStatement(handler, ms.getStatementLog());
-        return handler.<E>queryCursor(stmt);
+        return handler.queryCursor(stmt);
     }
 
     @Override
-    public List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException {
+    public List<BatchResult> doFlushStatements(boolean isRollback) {
+        // 直接返回空
         return Collections.emptyList();
     }
 
     private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
         Statement stmt;
         Connection connection = getConnection(statementLog);
+        // 每次都创建新的statement
         stmt = handler.prepare(connection, transaction.getTimeout());
         handler.parameterize(stmt);
         return stmt;

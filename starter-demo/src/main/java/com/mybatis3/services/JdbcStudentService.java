@@ -9,6 +9,9 @@ import java.util.Date;
 
 import com.mybatis3.domain.Student;
 
+/**
+ * 基于原始jdbc实现crud
+ */
 public class JdbcStudentService {
 
     private static final String DRIVER = "com.mysql.jdbc.Driver";

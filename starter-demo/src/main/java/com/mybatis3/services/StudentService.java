@@ -10,55 +10,54 @@ import com.mybatis3.domain.Student;
 import com.mybatis3.mappers.StudentMapper;
 import com.mybatis3.util.MyBatisSqlSessionFactory;
 
-public class StudentService
-{
-	private Logger logger = LoggerFactory.getLogger(getClass());
+/**
+ * 基于mybatis实现crud
+ */
+public class StudentService {
 
-	public List<Student> findAllStudents()
-	{
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
-		try {
-			StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-			return studentMapper.findAllStudents();
-		} finally {
-			sqlSession.close();
-		}
-	}
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public Student findStudentById(Integer studId)
-	{
-		logger.debug("Select Student By ID :{}", studId);
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
-		try {
-			StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-			return studentMapper.findStudentById(studId);
-			//return sqlSession.selectOne("com.mybatis3.StudentMapper.findStudentById", studId);
-		} finally {
-			sqlSession.close();
-		}
-	}
+    public List<Student> findAllStudents() {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
+        try {
+            StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+            return studentMapper.findAllStudents();
+        } finally {
+            sqlSession.close();
+        }
+    }
 
-	public void createStudent(Student student)
-	{
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
-		try {
-			StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-			studentMapper.insertStudent(student);
-			sqlSession.commit();
-		} finally {
-			sqlSession.close();
-		}
-	}
+    public Student findStudentById(Integer studId) {
+        logger.debug("Select Student By ID :{}", studId);
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
+        try {
+            StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+            return studentMapper.findStudentById(studId);
+            //return sqlSession.selectOne("com.mybatis3.StudentMapper.findStudentById", studId);
+        } finally {
+            sqlSession.close();
+        }
+    }
 
-	public void updateStudent(Student student)
-	{
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
-		try {
-			StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-			studentMapper.updateStudent(student);
-			sqlSession.commit();
-		} finally {
-			sqlSession.close();
-		}
-	}
+    public void createStudent(Student student) {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
+        try {
+            StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+            studentMapper.insertStudent(student);
+            sqlSession.commit();
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    public void updateStudent(Student student) {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSession();
+        try {
+            StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+            studentMapper.updateStudent(student);
+            sqlSession.commit();
+        } finally {
+            sqlSession.close();
+        }
+    }
 }

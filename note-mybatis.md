@@ -71,8 +71,16 @@ orm映射、查询缓存、动态sql、二级缓存
         - scripting生成动态sql
 
 
+- mybatis 一级缓存  
+
+
+- mybatis 二级缓存  
+    - 是应用级别的缓存，它的生命周期与应用程序的生命周期相同
+    - 配置项：cacheEnabled、<cache>、<cache-ref>、useCache
+    - 查询时，先查二级缓存、再查一级缓存
+
 - 为什么要在事务提交时才将 TransactionalCache.entriesToAddOnCommit 集合中缓存的数据写入到二级缓存，
-  而不是像一级缓存那样，将每次查询结果都直接写入二级缓存？   
+  而不是像一级缓存那样，将每次查询结果都直接写入二级缓存？    
   为了防止脏读，实现不可重复读    
 
 - mybatis原理 Java程序中如何加载上述配置文件以及如何使用MyBatis的API

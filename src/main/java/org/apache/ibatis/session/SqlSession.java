@@ -35,6 +35,7 @@ import org.apache.ibatis.executor.BatchResult;
 public interface SqlSession extends Closeable {
 
     /**
+     * 输入sql语句，返回查询结果对象
      * Retrieve a single row mapped from the statement key
      *
      * @param <T>       the returned object type
@@ -48,7 +49,7 @@ public interface SqlSession extends Closeable {
      *
      * @param <T>       the returned object type
      * @param statement Unique identifier matching the statement to use.
-     * @param parameter A parameter object to pass to the statement.
+     * @param parameter A parameter object to pass to the statement. sql语句需要绑定的实参来源
      * @return Mapped object
      */
     <T> T selectOne(String statement, Object parameter);
@@ -58,7 +59,7 @@ public interface SqlSession extends Closeable {
      *
      * @param <E>       the returned list element type
      * @param statement Unique identifier matching the statement to use.
-     * @return List of mapped object
+     * @return List of mapped object 查询结果会封装成list
      */
     <E> List<E> selectList(String statement);
 
@@ -79,7 +80,7 @@ public interface SqlSession extends Closeable {
      * @param <E>       the returned list element type
      * @param statement Unique identifier matching the statement to use.
      * @param parameter A parameter object to pass to the statement.
-     * @param rowBounds Bounds to limit object retrieval
+     * @param rowBounds Bounds to limit object retrieval 限制解析结果集的范围
      * @return List of mapped object
      */
     <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds);
@@ -94,7 +95,7 @@ public interface SqlSession extends Closeable {
      * @param <V>       the returned Map values type
      * @param statement Unique identifier matching the statement to use.
      * @param mapKey    The property to use as key for each value in the list.
-     * @return Map containing key pair data.
+     * @return Map containing key pair data. 查询结果会封装成map
      */
     <K, V> Map<K, V> selectMap(String statement, String mapKey);
 
@@ -132,7 +133,7 @@ public interface SqlSession extends Closeable {
      *
      * @param <T>       the returned cursor element type.
      * @param statement Unique identifier matching the statement to use.
-     * @return Cursor of mapped objects
+     * @return Cursor of mapped objects  查询结果返回游标对象
      */
     <T> Cursor<T> selectCursor(String statement);
 
@@ -163,7 +164,7 @@ public interface SqlSession extends Closeable {
      *
      * @param statement Unique identifier matching the statement to use.
      * @param parameter A parameter object to pass to the statement.
-     * @param handler   ResultHandler that will handle each retrieved row
+     * @param handler   ResultHandler that will handle each retrieved row 指定查询结果处理器handler
      */
     void select(String statement, Object parameter, ResultHandler handler);
 
@@ -187,6 +188,7 @@ public interface SqlSession extends Closeable {
     void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler);
 
     /**
+     * 执行insert语句
      * Execute an insert statement.
      *
      * @param statement Unique identifier matching the statement to execute.
@@ -206,6 +208,7 @@ public interface SqlSession extends Closeable {
     int insert(String statement, Object parameter);
 
     /**
+     * 执行update语句
      * Execute an update statement. The number of rows affected will be returned.
      *
      * @param statement Unique identifier matching the statement to execute.
@@ -223,6 +226,7 @@ public interface SqlSession extends Closeable {
     int update(String statement, Object parameter);
 
     /**
+     * 执行delete语句
      * Execute a delete statement. The number of rows affected will be returned.
      *
      * @param statement Unique identifier matching the statement to execute.
@@ -240,6 +244,7 @@ public interface SqlSession extends Closeable {
     int delete(String statement, Object parameter);
 
     /**
+     * 提交事务
      * Flushes batch statements and commits database connection.
      * Note that database connection will not be committed if no updates/deletes/inserts were called.
      * To force the commit call {@link SqlSession#commit(boolean)}
@@ -254,6 +259,7 @@ public interface SqlSession extends Closeable {
     void commit(boolean force);
 
     /**
+     * 回滚事务
      * Discards pending batch statements and rolls database connection back.
      * Note that database connection will not be rolled back if no updates/deletes/inserts were called.
      * To force the rollback call {@link SqlSession#rollback(boolean)}
@@ -269,6 +275,7 @@ public interface SqlSession extends Closeable {
     void rollback(boolean force);
 
     /**
+     * 批量执行sql
      * Flushes batch statements.
      *
      * @return BatchResult list of updated records
@@ -277,12 +284,14 @@ public interface SqlSession extends Closeable {
     List<BatchResult> flushStatements();
 
     /**
+     * 关闭当前session
      * Closes the session
      */
     @Override
     void close();
 
     /**
+     * 清空缓存
      * Clears local session cache
      */
     void clearCache();
@@ -295,6 +304,7 @@ public interface SqlSession extends Closeable {
     Configuration getConfiguration();
 
     /**
+     * 获取type对应的mapper对象
      * Retrieves a mapper.
      *
      * @param <T>  the mapper type
@@ -304,6 +314,7 @@ public interface SqlSession extends Closeable {
     <T> T getMapper(Class<T> type);
 
     /**
+     * 获取当前SqlSession对应的数据库连接
      * Retrieves inner database connection
      *
      * @return Connection

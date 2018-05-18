@@ -19,6 +19,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 /**
  * mapper接口与映射sql配置文件绑定异常
+ * 以便在编译期发现sql节点配置的问题
  *
  * @author Clinton Begin
  */

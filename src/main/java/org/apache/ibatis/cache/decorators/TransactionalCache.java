@@ -41,16 +41,21 @@ public class TransactionalCache implements Cache {
 
     private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
+    // 底层封装的二级缓存所对应的 Cache 对象
     private Cache delegate;
+
+    // 为 true 时，则表示当前 TransactionalCache 不可查询，且提交事务时会将底层 Cache 清空
     private boolean clearOnCommit;
+    // 暂时记录添加到 TransactionalCache 中的数据。 在事务提交时，会将其中的数据添加到二级缓存中
     private Map<Object, Object> entriesToAddOnCommit;
+    // 记录缓存未命中的 CacheKey
     private Set<Object> entriesMissedInCache;
 
     public TransactionalCache(Cache delegate) {
         this.delegate = delegate;
         this.clearOnCommit = false;
-        this.entriesToAddOnCommit = new HashMap<Object, Object>();
-        this.entriesMissedInCache = new HashSet<Object>();
+        this.entriesToAddOnCommit = new HashMap<>();
+        this.entriesMissedInCache = new HashSet<>();
     }
 
     @Override
@@ -65,8 +70,10 @@ public class TransactionalCache implements Cache {
 
     @Override
     public Object getObject(Object key) {
-        // issue #116
+
+        // issue #116 先从二级缓存中查
         Object object = delegate.getObject(key);
+
         if (object == null) {
             entriesMissedInCache.add(key);
         }
@@ -85,6 +92,7 @@ public class TransactionalCache implements Cache {
 
     @Override
     public void putObject(Object key, Object object) {
+        // 先暂存
         entriesToAddOnCommit.put(key, object);
     }
 

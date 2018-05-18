@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * 基于xpath解析xml
+ * 基于dom方式及xpath表达式解析xml
  *
  * @author Clinton Begin
  */
@@ -50,7 +50,7 @@ public class XPathParser {
 
     private boolean validation;
 
-    // 用于加载本地dtd文件
+    // 用于离线加载本地dtd文件
     private EntityResolver entityResolver;
 
     // mybatis-config.xml 中<propteries>标签定义的键值对
@@ -237,12 +237,16 @@ public class XPathParser {
         }
     }
 
+    /**
+     * 解析xml配置文件生成document对象
+     * important: this must only be called AFTER common constructor
+     */
     private Document createDocument(InputSource inputSource) {
-        // important: this must only be called AFTER common constructor
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(validation);
 
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+            factory.setValidating(validation);
             factory.setNamespaceAware(false);
             factory.setIgnoringComments(true);
             factory.setIgnoringElementContentWhitespace(false);
@@ -250,6 +254,7 @@ public class XPathParser {
             factory.setExpandEntityReferences(true);
 
             DocumentBuilder builder = factory.newDocumentBuilder();
+
             builder.setEntityResolver(entityResolver);
             builder.setErrorHandler(new ErrorHandler() {
                 @Override
@@ -266,6 +271,8 @@ public class XPathParser {
                 public void warning(SAXParseException exception) throws SAXException {
                 }
             });
+
+            // 解析输入源
             return builder.parse(inputSource);
         } catch (Exception e) {
             throw new BuilderException("Error creating document instance.  Cause: " + e, e);

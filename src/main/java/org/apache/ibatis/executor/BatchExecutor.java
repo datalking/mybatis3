@@ -44,9 +44,13 @@ public class BatchExecutor extends BaseExecutor {
 
     public static final int BATCH_UPDATE_RETURN_VALUE = Integer.MIN_VALUE + 1002;
 
+    // 缓存多个 Statement 对象其中每个 Statement 对象中都缓存了多条 SQL 语句
     private final List<Statement> statementList = new ArrayList<>();
+    //记录批处理的结果， BatchResult 中通过 updateCounts 字段记录每个 Statement 执行批处理的结果
     private final List<BatchResult> batchResultList = new ArrayList<>();
+    // 记录当前执行的 SQL 语句
     private String currentSql;
+    // 记录当前执行的 MappedStatement 对象
     private MappedStatement currentStatement;
 
     public BatchExecutor(Configuration configuration, Transaction transaction) {
@@ -92,7 +96,7 @@ public class BatchExecutor extends BaseExecutor {
             Connection connection = getConnection(ms.getStatementLog());
             stmt = handler.prepare(connection, transaction.getTimeout());
             handler.parameterize(stmt);
-            return handler.<E>query(stmt, resultHandler);
+            return handler.query(stmt, resultHandler);
         } finally {
             closeStatement(stmt);
         }
@@ -106,13 +110,14 @@ public class BatchExecutor extends BaseExecutor {
         Connection connection = getConnection(ms.getStatementLog());
         Statement stmt = handler.prepare(connection, transaction.getTimeout());
         handler.parameterize(stmt);
-        return handler.<E>queryCursor(stmt);
+        return handler.queryCursor(stmt);
     }
 
     @Override
     public List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException {
         try {
-            List<BatchResult> results = new ArrayList<BatchResult>();
+            // results 集合用于储存批处理的结果
+            List<BatchResult> results = new ArrayList<>();
             if (isRollback) {
                 return Collections.emptyList();
             }
@@ -121,9 +126,12 @@ public class BatchExecutor extends BaseExecutor {
                 applyTransactionTimeout(stmt);
                 BatchResult batchResult = batchResultList.get(i);
                 try {
+                    /// 执行多条sql语句
                     batchResult.setUpdateCounts(stmt.executeBatch());
                     MappedStatement ms = batchResult.getMappedStatement();
                     List<Object> parameterObjects = batchResult.getParameterObjects();
+
+                    /// 获取主键
                     KeyGenerator keyGenerator = ms.getKeyGenerator();
                     if (Jdbc3KeyGenerator.class.equals(keyGenerator.getClass())) {
                         Jdbc3KeyGenerator jdbc3KeyGenerator = (Jdbc3KeyGenerator) keyGenerator;

@@ -28,7 +28,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
- * 定义了数据库操作的基本方法
+ * 数据库操作方法 接口
+ * 定义了数据库操作的基本方法，包括crud入口、事务操作、缓存操作
  *
  * @author Clinton Begin
  */
@@ -36,31 +37,37 @@ public interface Executor {
 
     ResultHandler NO_RESULT_HANDLER = null;
 
+    // 执行insert、update、delete三种类型的sql
     int update(MappedStatement ms, Object parameter) throws SQLException;
 
-    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
-                      CacheKey cacheKey, BoundSql boundSql) throws SQLException;
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                      ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException;
 
     <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
 
     <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException;
 
+    // 批量执行sql语句
     List<BatchResult> flushStatements() throws SQLException;
 
     void commit(boolean required) throws SQLException;
 
     void rollback(boolean required) throws SQLException;
 
+    // 创建缓存中用的key
     CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 
     boolean isCached(MappedStatement ms, CacheKey key);
 
+    // 清空一级缓存
     void clearLocalCache();
 
+    // 延迟加载一级缓存中的数据
     void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType);
 
     Transaction getTransaction();
 
+    // 关闭当前executor
     void close(boolean forceRollback);
 
     boolean isClosed();

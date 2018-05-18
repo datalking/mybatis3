@@ -25,8 +25,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * 离线解析mybatis的xml配置文件
- * 包括mybatis-config.xml和XxxMapper.xml
+ * 离线加载mybatis xml文件的dtd
+ * 包括mybatis-config.xml和XxxMapper.xml的dtd
  * <p>
  * Offline entity resolver for the MyBatis DTDs
  *

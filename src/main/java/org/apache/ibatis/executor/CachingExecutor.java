@@ -33,7 +33,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
- * 支持缓存的执行器
+ * 支持二级缓存的执行器
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -41,6 +41,7 @@ import org.apache.ibatis.transaction.Transaction;
 public class CachingExecutor implements Executor {
 
     private Executor delegate;
+
     private TransactionalCacheManager tcm = new TransactionalCacheManager();
 
     public CachingExecutor(Executor delegate) {
@@ -92,23 +93,30 @@ public class CachingExecutor implements Executor {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
-            throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameterObject,
+                             RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+
         Cache cache = ms.getCache();
+
+        // 二级缓存是否存在
         if (cache != null) {
             flushCacheIfRequired(ms);
+
+            // 检查是否开启了二级缓存
             if (ms.isUseCache() && resultHandler == null) {
                 ensureNoOutParams(ms, parameterObject, boundSql);
                 @SuppressWarnings("unchecked")
                 List<E> list = (List<E>) tcm.getObject(cache, key);
                 if (list == null) {
-                    list = delegate.<E>query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+                    list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
                     tcm.putObject(cache, key, list); // issue #578 and #116
                 }
                 return list;
             }
         }
-        return delegate.<E>query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+
+        // 先查一级缓存，再查数据库
+        return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
     }
 
     @Override

@@ -34,12 +34,13 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
- * 可以重用statement对象的执行器，来减少预编译statement的开销
+ * 可重用statement对象的执行器，来减少预编译statement的开销
  *
  * @author Clinton Begin
  */
 public class ReuseExecutor extends BaseExecutor {
 
+    // 负责缓存使用过的statement对象，sql语句 -> 对应的statement对象
     private final Map<String, Statement> statementMap = new HashMap<>();
 
     public ReuseExecutor(Configuration configuration, Transaction transaction) {
@@ -59,19 +60,20 @@ public class ReuseExecutor extends BaseExecutor {
         Configuration configuration = ms.getConfiguration();
         StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
         Statement stmt = prepareStatement(handler, ms.getStatementLog());
-        return handler.<E>query(stmt, resultHandler);
+        return handler.query(stmt, resultHandler);
     }
 
     @Override
     protected <E> Cursor<E> doQueryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds, BoundSql boundSql) throws SQLException {
         Configuration configuration = ms.getConfiguration();
+        // 每次都创建新的statement
         StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, null, boundSql);
         Statement stmt = prepareStatement(handler, ms.getStatementLog());
-        return handler.<E>queryCursor(stmt);
+        return handler.queryCursor(stmt);
     }
 
     @Override
-    public List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException {
+    public List<BatchResult> doFlushStatements(boolean isRollback) {
         for (Statement stmt : statementMap.values()) {
             closeStatement(stmt);
         }
@@ -83,7 +85,9 @@ public class ReuseExecutor extends BaseExecutor {
         Statement stmt;
         BoundSql boundSql = handler.getBoundSql();
         String sql = boundSql.getSql();
+
         if (hasStatementFor(sql)) {
+            // 先尝试从缓存中获取statement对象
             stmt = getStatement(sql);
             applyTransactionTimeout(stmt);
         } else {

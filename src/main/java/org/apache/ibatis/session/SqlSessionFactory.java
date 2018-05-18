@@ -18,7 +18,8 @@ package org.apache.ibatis.session;
 import java.sql.Connection;
 
 /**
- * SqlSession工厂类
+ * SqlSession工厂 接口
+ * 用于创建sqlSession
  * <p>
  * Creates an {@link SqlSession} out of a connection or a DataSource
  *
@@ -32,6 +33,7 @@ public interface SqlSessionFactory {
 
     SqlSession openSession(Connection connection);
 
+    // 指定事务隔离级别
     SqlSession openSession(TransactionIsolationLevel level);
 
     SqlSession openSession(ExecutorType execType);

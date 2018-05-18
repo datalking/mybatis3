@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import com.mybatis3.domain.Student;
 
 public class StudentServiceTest {
+
     private static StudentService studentService;
 
     @BeforeClass

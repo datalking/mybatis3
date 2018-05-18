@@ -26,7 +26,9 @@ import java.util.Properties;
 public class PropertyParser {
 
     private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
+
     /**
+     * 在 mybatis-config.xml 中 ＜properties＞节点下自己置是否开启默认值功能的对应配置项
      * The special property key that indicate whether enable a default value on placeholder.
      * <p>
      * The default value is {@code false} (indicate disable a default value on placeholder)
@@ -38,8 +40,8 @@ public class PropertyParser {
     public static final String KEY_ENABLE_DEFAULT_VALUE = KEY_PREFIX + "enable-default-value";
 
     /**
+     * 配置占位符与默认值之间的默认分隔符的对应配置项
      * The special property key that specify a separator for key and default value on placeholder.
-     * <p>
      * The default separator is {@code ":"}.
      * </p>
      *
@@ -47,7 +49,9 @@ public class PropertyParser {
      */
     public static final String KEY_DEFAULT_VALUE_SEPARATOR = KEY_PREFIX + "default-value-separator";
 
+    // 默认情况下，关闭默认值
     private static final String ENABLE_DEFAULT_VALUE = "false";
+    // 默认分隔符是冒号
     private static final String DEFAULT_VALUE_SEPARATOR = ":";
 
     private PropertyParser() {

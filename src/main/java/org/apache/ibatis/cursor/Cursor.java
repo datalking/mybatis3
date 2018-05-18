@@ -19,6 +19,7 @@ import java.io.Closeable;
 
 /**
  * 使用Iterator迭代器模式处理结果集的接口
+ * <p>
  * Cursor contract to handle fetching items lazily using an Iterator.
  * Cursors are a perfect fit to handle millions of items queries that would not normally fits in memory.
  * Cursor SQL queries must be ordered (resultOrdered="true") using the id columns of the resultMap.

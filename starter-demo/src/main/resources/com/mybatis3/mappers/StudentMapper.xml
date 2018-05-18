@@ -11,11 +11,11 @@
 	</resultMap>
 
   	<select id="findAllStudents" resultMap="StudentResult">
-    	select * from STUDENTS
+    	SELECT * from STUDENTS
   	</select>
 
   	<select id="findStudentById" parameterType="int" resultType="Student">
-    	select stud_id as studId, name, email, dob from STUDENTS where stud_id=#{studId}
+    	SELECT stud_id as studId, name, email, dob from STUDENTS where stud_id=#{studId}
   	</select>
 
   	<insert id="insertStudent" parameterType="Student">
@@ -25,5 +25,9 @@
   	<update id="updateStudent" parameterType="Student">
   		UPDATE STUDENTS SET NAME=#{name}, EMAIL=#{email}, DOB=#{dob} WHERE STUD_ID=#{studId}
   	</update>
+
+	<delete id="deleteStudent" parameterType="Student">
+  		DELETE from STUDENTS WHERE STUD_ID=#{studId}
+  	</delete>
 
 </mapper>

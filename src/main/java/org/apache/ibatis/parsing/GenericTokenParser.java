@@ -17,6 +17,7 @@ package org.apache.ibatis.parsing;
 
 /**
  * 标记占位符解析器
+ * 主要是查找指定占位符标记
  *
  * @author Clinton Begin
  */

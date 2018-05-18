@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 /**
  * 类型参数解析 工具类
+ * 用于解析指定类中的宇段、方法返回值或方法参数的类型。
  *
  * @author Iwao AVE!
  */
@@ -67,13 +68,18 @@ public class TypeParameterResolver {
     }
 
     private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
+
         if (type instanceof TypeVariable) {
+
             return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
         } else if (type instanceof ParameterizedType) {
+
             return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
         } else if (type instanceof GenericArrayType) {
+
             return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
         } else {
+
             return type;
         }
     }
@@ -95,6 +101,7 @@ public class TypeParameterResolver {
         }
     }
 
+    // 负责解析Parameterized Type
     private static ParameterizedType resolveParameterizedType(ParameterizedType parameterizedType, Type srcType, Class<?> declaringClass) {
         Class<?> rawType = (Class<?>) parameterizedType.getRawType();
         Type[] typeArgs = parameterizedType.getActualTypeArguments();
@@ -113,6 +120,7 @@ public class TypeParameterResolver {
         return new ParameterizedTypeImpl(rawType, null, args);
     }
 
+    // 负责解析 WildcardType
     private static Type resolveWildcardType(WildcardType wildcardType, Type srcType, Class<?> declaringClass) {
         Type[] lowerBounds = resolveWildcardTypeBounds(wildcardType.getLowerBounds(), srcType, declaringClass);
         Type[] upperBounds = resolveWildcardTypeBounds(wildcardType.getUpperBounds(), srcType, declaringClass);
@@ -135,6 +143,7 @@ public class TypeParameterResolver {
         return result;
     }
 
+    // 负责解析 TypeVariable
     private static Type resolveTypeVar(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass) {
         Type result = null;
         Class<?> clazz = null;
@@ -171,6 +180,9 @@ public class TypeParameterResolver {
         return Object.class;
     }
 
+    /**
+     * 递归整个继承结构井完成类型变量的解析
+     */
     private static Type scanSuperTypes(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass, Class<?> clazz, Type superclass) {
         Type result = null;
         if (superclass instanceof ParameterizedType) {

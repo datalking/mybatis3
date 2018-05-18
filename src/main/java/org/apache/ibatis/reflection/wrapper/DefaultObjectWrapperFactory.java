@@ -25,6 +25,7 @@ import org.apache.ibatis.reflection.ReflectionException;
  */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
 
+    // !!! 默认返回false，该实现实际上不可用
     @Override
     public boolean hasWrapperFor(Object object) {
         return false;

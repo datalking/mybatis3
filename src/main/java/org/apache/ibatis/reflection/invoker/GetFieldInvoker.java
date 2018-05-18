@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * 基于反射获取字段值
+ * 基于反射 获取字段值
  *
  * @author Clinton Begin
  */

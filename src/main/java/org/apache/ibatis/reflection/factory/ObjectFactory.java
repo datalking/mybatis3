@@ -36,6 +36,7 @@ public interface ObjectFactory {
     void setProperties(Properties properties);
 
     /**
+     * 调用无参构造方法创建对象
      * Creates a new object with default constructor.
      *
      * @param type Object type
@@ -44,6 +45,7 @@ public interface ObjectFactory {
     <T> T create(Class<T> type);
 
     /**
+     * 根据参数类型合适的构造器创建对象
      * Creates a new object with the specified constructor and params.
      *
      * @param type                Object type
@@ -54,6 +56,7 @@ public interface ObjectFactory {
     <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs);
 
     /**
+     * 检查指定class是否为集合
      * Returns true if this object can have a set of other objects.
      * It's main purpose is to support non-java.util.Collection objects like Scala collections.
      *

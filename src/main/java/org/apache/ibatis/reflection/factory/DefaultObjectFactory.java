@@ -32,6 +32,7 @@ import org.apache.ibatis.reflection.ReflectionException;
 
 /**
  * ObjectFactory 默认实现类
+ * mybatis中统一通过反射创建对象
  *
  * @author Clinton Begin
  */
@@ -47,6 +48,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+
         Class<?> classToCreate = resolveInterface(type);
         // we know types are assignable
         return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
@@ -57,9 +59,14 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         // no props for default
     }
 
+    /**
+     * 选择合适的构造方法创建对象
+     */
     <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
         try {
             Constructor<T> constructor;
+
+            /// 调用默认无参构造方法
             if (constructorArgTypes == null || constructorArgs == null) {
                 constructor = type.getDeclaredConstructor();
                 if (!constructor.isAccessible()) {
@@ -67,10 +74,13 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
                 }
                 return constructor.newInstance();
             }
+
+            /// 根据指定的参数列表查找构造函数，并实例化对象
             constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
             if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
             }
+
             return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
         } catch (Exception e) {
             StringBuilder argTypes = new StringBuilder();
@@ -92,6 +102,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
             throw new ReflectionException("Error instantiating " + type + " with invalid types (" + argTypes + ") or values (" + argValues + "). Cause: " + e, e);
         }
     }
+
 
     protected Class<?> resolveInterface(Class<?> type) {
         Class<?> classToCreate;

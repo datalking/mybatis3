@@ -27,13 +27,15 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
- * 获取类中属性信息
+ * 类的元信息
  *
  * @author Clinton Begin
  */
 public class MetaClass {
 
+    // 用户缓存reflector
     private ReflectorFactory reflectorFactory;
+    // 该class的元信息
     private Reflector reflector;
 
     private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
@@ -41,17 +43,22 @@ public class MetaClass {
         this.reflector = reflectorFactory.findForClass(type);
     }
 
+    // 一般使用此方法代替构造方法
     public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
         return new MetaClass(type, reflectorFactory);
     }
 
+    // 为该属性创建对应的 MetaClass 对象
     public MetaClass metaClassForProperty(String name) {
         Class<?> propType = reflector.getGetterType(name);
         return MetaClass.forClass(propType, reflectorFactory);
     }
 
+    // 获取属性元信息，属性只能使用.号导航
     public String findProperty(String name) {
+
         StringBuilder prop = buildProperty(name, new StringBuilder());
+
         return prop.length() > 0 ? prop.toString() : null;
     }
 
@@ -170,16 +177,23 @@ public class MetaClass {
         return reflector.getSetInvoker(name);
     }
 
+    // 解析属性表达式
     private StringBuilder buildProperty(String name, StringBuilder builder) {
         PropertyTokenizer prop = new PropertyTokenizer(name);
+
         if (prop.hasNext()) {
+
             String propertyName = reflector.findPropertyName(prop.getName());
+
             if (propertyName != null) {
                 builder.append(propertyName);
                 builder.append(".");
                 MetaClass metaProp = metaClassForProperty(propertyName);
+
+                // 递归解析children字段
                 metaProp.buildProperty(prop.getChildren(), builder);
             }
+
         } else {
             String propertyName = reflector.findPropertyName(name);
             if (propertyName != null) {

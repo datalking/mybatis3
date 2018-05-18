@@ -26,6 +26,7 @@ public interface Invoker {
 
     Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException;
 
+    // 返回属性对应的类型
     Class<?> getType();
 
 }

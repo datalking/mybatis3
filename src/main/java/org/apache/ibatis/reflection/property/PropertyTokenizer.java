@@ -19,15 +19,24 @@ import java.util.Iterator;
 
 /**
  * 属性表达式解析类
+ * 如orders[O].items[O].name
  *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+
+    // 当前表达式的名称
     private String name;
+    // 当前表达式的索引名
     private String indexedName;
+    // 索引下标
     private String index;
+    // 子表达式
     private String children;
 
+    /**
+     * 对输入表达式解析，实例化字段
+     */
     public PropertyTokenizer(String fullname) {
         int delim = fullname.indexOf('.');
         if (delim > -1) {

@@ -19,13 +19,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 基于反射调用方法
+ * 基于反射 调用Method对象的方法
  *
  * @author Clinton Begin
  */
 public class MethodInvoker implements Invoker {
 
     private Class<?> type;
+
+    // 要调用的方法
     private Method method;
 
     public MethodInvoker(Method method) {
@@ -40,6 +42,7 @@ public class MethodInvoker implements Invoker {
 
     @Override
     public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
+
         return method.invoke(target, args);
     }
 

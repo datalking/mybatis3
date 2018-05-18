@@ -20,7 +20,7 @@ import java.util.Locale;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
- * 根据方法获取属性名 工具类
+ * 根据方法名获取属性名 工具类
  *
  * @author Clinton Begin
  */
@@ -30,6 +30,7 @@ public final class PropertyNamer {
         // Prevent Instantiation of Static Class
     }
 
+    // 方法名转属性名，策略是去掉is, get, set
     public static String methodToProperty(String name) {
         if (name.startsWith("is")) {
             name = name.substring(2);

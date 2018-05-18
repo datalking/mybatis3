@@ -34,6 +34,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 public class BeanWrapper extends BaseWrapper {
 
     private Object object;
+
     private MetaClass metaClass;
 
     public BeanWrapper(MetaObject metaObject, Object object) {

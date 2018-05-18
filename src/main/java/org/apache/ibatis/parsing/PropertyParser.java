@@ -18,7 +18,7 @@ package org.apache.ibatis.parsing;
 import java.util.Properties;
 
 /**
- * 属性解析器
+ * 属性键值对解析器
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu
@@ -59,14 +59,24 @@ public class PropertyParser {
     }
 
     public static String parse(String string, Properties variables) {
+
         VariableTokenHandler handler = new VariableTokenHandler(variables);
+
         GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
+
         return parser.parse(string);
     }
 
+    /**
+     *
+     */
     private static class VariableTokenHandler implements TokenHandler {
+
+        // <properties> 节点下定义的键位对，用于替换占位符
         private final Properties variables;
+        // 是否支持占位符中使用默认值的功能
         private final boolean enableDefaultValue;
+        // 指定占位符和默认值之间的分隔符
         private final String defaultValueSeparator;
 
         private VariableTokenHandler(Properties variables) {
@@ -81,23 +91,33 @@ public class PropertyParser {
 
         @Override
         public String handleToken(String content) {
+
+            /// variables 集合不为空时
             if (variables != null) {
                 String key = content;
+
+                /// 若启用默认值
                 if (enableDefaultValue) {
                     final int separatorIndex = content.indexOf(defaultValueSeparator);
                     String defaultValue = null;
                     if (separatorIndex >= 0) {
                         key = content.substring(0, separatorIndex);
+                        // 获取默认值
                         defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
                     }
+
                     if (defaultValue != null) {
+                        // 在 variables 集合中查找指定的占位符
                         return variables.getProperty(key, defaultValue);
                     }
                 }
+
+                /// 若未启用默认值的功能，则直接查找variables集合
                 if (variables.containsKey(key)) {
                     return variables.getProperty(key);
                 }
             }
+
             return "${" + content + "}";
         }
     }

@@ -30,15 +30,21 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 /**
  * 对象元信息
  * 根据传入的原始对象的类型以及ObjectFactory创建相应的 ObjectWrapper
+ * 属性表达式解析的入口
  *
  * @author Clinton Begin
  */
 public class MetaObject {
 
+    // 原始 JavaBean 对象
     private Object originalObject;
+    // 封装了 originalObject的objectWrapper
     private ObjectWrapper objectWrapper;
+    // 负责实创建 originalObject 的工厂对象
     private ObjectFactory objectFactory;
+    // 负责创建 ObjectWrapper 的工厂对象
     private ObjectWrapperFactory objectWrapperFactory;
+    // 缓存reflector
     private ReflectorFactory reflectorFactory;
 
     private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
@@ -60,6 +66,7 @@ public class MetaObject {
         }
     }
 
+    // 一般使用此方法代替构造方法
     public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
         if (object == null) {
             return SystemMetaObject.NULL_META_OBJECT;
@@ -127,6 +134,7 @@ public class MetaObject {
     }
 
     public void setValue(String name, Object value) {
+
         PropertyTokenizer prop = new PropertyTokenizer(name);
         if (prop.hasNext()) {
             MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
@@ -144,6 +152,9 @@ public class MetaObject {
         }
     }
 
+    /**
+     * 创建该属性对象相应的MetaObject对象
+     */
     public MetaObject metaObjectForProperty(String name) {
         Object value = getValue(name);
         return MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);

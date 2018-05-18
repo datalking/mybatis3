@@ -23,6 +23,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * 对象属性信息操作 接口
+ * 对对象的包装，抽象了对象的属性信息
  *
  * @author Clinton Begin
  */
@@ -32,8 +33,10 @@ public interface ObjectWrapper {
 
     void set(PropertyTokenizer prop, Object value);
 
+    // 查找属性表达式指定的属性
     String findProperty(String name, boolean useCamelCaseMapping);
 
+    // 查找可读属性的名称集合
     String[] getGetterNames();
 
     String[] getSetterNames();
@@ -42,16 +45,21 @@ public interface ObjectWrapper {
 
     Class<?> getGetterType(String name);
 
+    // 判断属性表达式指定属性是否有 getter/setter 方法
     boolean hasSetter(String name);
 
     boolean hasGetter(String name);
 
+    // 为属性表达式指定的属 ，l生创建相应的 MetaObject 对象
     MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
 
+    // 检查对象是否为Collection类型
     boolean isCollection();
 
+    // 调用 Collection 对象的 add()
     void add(Object element);
 
+    // 调用 Collection 对象的 addAll()
     <E> void addAll(List<E> element);
 
 }

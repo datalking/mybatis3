@@ -16,7 +16,7 @@
 package org.apache.ibatis.parsing;
 
 /**
- * 对内容进行标记解析处理 接口
+ * 占位符标记解析处理 接口
  *
  * @author Clinton Begin
  */

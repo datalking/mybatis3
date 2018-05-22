@@ -50,6 +50,7 @@ public interface Transaction {
     void close() throws SQLException;
 
     /**
+     * 获取事务超时时间
      * Get transaction timeout if set
      */
     Integer getTimeout() throws SQLException;

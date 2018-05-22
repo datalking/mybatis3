@@ -39,6 +39,7 @@ public class JdbcTransaction implements Transaction {
 
     private static final Log log = LogFactory.getLog(JdbcTransaction.class);
 
+    // 事务对应的数据库连接，是延迟初始化的
     protected Connection connection;
     protected DataSource dataSource;
     protected TransactionIsolationLevel level;
@@ -56,28 +57,34 @@ public class JdbcTransaction implements Transaction {
 
     @Override
     public Connection getConnection() throws SQLException {
+
         if (connection == null) {
             openConnection();
         }
+
         return connection;
     }
 
     @Override
     public void commit() throws SQLException {
+
         if (connection != null && !connection.getAutoCommit()) {
             if (log.isDebugEnabled()) {
                 log.debug("Committing JDBC Connection [" + connection + "]");
             }
+
             connection.commit();
         }
     }
 
     @Override
     public void rollback() throws SQLException {
+
         if (connection != null && !connection.getAutoCommit()) {
             if (log.isDebugEnabled()) {
                 log.debug("Rolling back JDBC Connection [" + connection + "]");
             }
+
             connection.rollback();
         }
     }
@@ -135,10 +142,13 @@ public class JdbcTransaction implements Transaction {
         if (log.isDebugEnabled()) {
             log.debug("Opening JDBC Connection");
         }
+
         connection = dataSource.getConnection();
+
         if (level != null) {
             connection.setTransactionIsolation(level.getLevel());
         }
+
         setDesiredAutoCommit(autoCommmit);
     }
 

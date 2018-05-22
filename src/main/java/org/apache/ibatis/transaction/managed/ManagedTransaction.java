@@ -26,6 +26,7 @@ import org.apache.ibatis.transaction.Transaction;
 
 /**
  * 基于应用程序容器实现的托管事务
+ * commit()和rollback()都为空方法，事务的提交和回漆都是依靠容器管理
  * <p>
  * {@link Transaction} that lets the container manage the full lifecycle of the transaction.
  * Delays connection retrieval until getConnection() is called.

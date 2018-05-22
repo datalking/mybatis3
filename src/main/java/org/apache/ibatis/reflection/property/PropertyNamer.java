@@ -30,11 +30,13 @@ public final class PropertyNamer {
         // Prevent Instantiation of Static Class
     }
 
-    // 方法名转属性名，策略是去掉is, get, set
+    // 方法名转属性名，策略是去掉is, get, set，再将首字母小写
     public static String methodToProperty(String name) {
         if (name.startsWith("is")) {
+
             name = name.substring(2);
         } else if (name.startsWith("get") || name.startsWith("set")) {
+
             name = name.substring(3);
         } else {
             throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");

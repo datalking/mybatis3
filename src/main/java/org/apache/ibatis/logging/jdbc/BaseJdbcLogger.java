@@ -30,7 +30,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
- * jdbc日志工具抽象类
+ * jdbc操作日志 抽象类
  * <p>
  * Base class for proxies to do logging
  *
@@ -39,27 +39,11 @@ import org.apache.ibatis.reflection.ArrayUtil;
  */
 public abstract class BaseJdbcLogger {
 
+    // 记录PreparedStatement接口中定义的常用的setXxx()方法
     protected static final Set<String> SET_METHODS = new HashSet<>();
 
+    // 记录Statement接口和PreparedStatement接口中与执行SQL语句相关的方法
     protected static final Set<String> EXECUTE_METHODS = new HashSet<>();
-
-    private Map<Object, Object> columnMap = new HashMap<>();
-
-    private List<Object> columnNames = new ArrayList<>();
-    private List<Object> columnValues = new ArrayList<>();
-
-    protected Log statementLog;
-
-    protected int queryStack;
-
-    public BaseJdbcLogger(Log log, int queryStack) {
-        this.statementLog = log;
-        if (queryStack == 0) {
-            this.queryStack = 1;
-        } else {
-            this.queryStack = queryStack;
-        }
-    }
 
     static {
         SET_METHODS.add("setString");
@@ -92,6 +76,28 @@ public abstract class BaseJdbcLogger {
         EXECUTE_METHODS.add("executeQuery");
         EXECUTE_METHODS.add("addBatch");
     }
+
+    // 记录PreparedStatement.setXxx()方法设置的键值对
+    private Map<Object, Object> columnMap = new HashMap<>();
+    // 记录PreparedStatement.setXxx()方法设置的键
+    private List<Object> columnNames = new ArrayList<>();
+    // 记录PreparedStatement.setXxx()方法设置的值
+    private List<Object> columnValues = new ArrayList<>();
+
+    // 记录sql的层数，用于格式化输出sql
+    protected int queryStack;
+
+    protected Log statementLog;
+
+    public BaseJdbcLogger(Log log, int queryStack) {
+        this.statementLog = log;
+        if (queryStack == 0) {
+            this.queryStack = 1;
+        } else {
+            this.queryStack = queryStack;
+        }
+    }
+
 
     protected void setColumn(Object key, Object value) {
         columnMap.put(key, value);

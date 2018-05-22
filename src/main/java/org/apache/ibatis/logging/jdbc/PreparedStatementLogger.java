@@ -43,6 +43,7 @@ public final class PreparedStatementLogger extends BaseJdbcLogger implements Inv
         this.statement = stmt;
     }
 
+    // 为EXECUTE_METHODS集合中的方法、 SET_METHODS集合中的方法、 getResultSet()等方法提供代理
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
         try {

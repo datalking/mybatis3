@@ -28,7 +28,8 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
- * 访问服务器内资源的抽象类
+ * 访问服务器内的资源 抽象类
+ * 用来查找指定路径下的资源
  * Provides a very simple API for accessing resources within an application server.
  *
  * @author Ben Gunter
@@ -38,17 +39,19 @@ public abstract class VFS {
     private static final Log log = LogFactory.getLog(VFS.class);
 
     /**
+     * 2个默认实现
      * The built-in implementations.
      */
     public static final Class<?>[] IMPLEMENTATIONS = {JBoss6VFS.class, DefaultVFS.class};
 
     /**
+     * 用户自定义实现
      * The list to which implementations are added by {@link #addImplClass(Class)}.
      */
     public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
 
     /**
-     * Singleton instance.
+     * Singleton instance. 单例模式
      */
     private static VFS instance;
 
@@ -63,11 +66,13 @@ public abstract class VFS {
         }
 
         // Try the user implementations first, then the built-ins
-        List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
+        // 优先使用用户自定义的 VFS 实现，若没有，则使用默认
+        List<Class<? extends VFS>> impls = new ArrayList<>();
         impls.addAll(USER_IMPLEMENTATIONS);
         impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
         // Try each implementation class until a valid one is found
+        // 得到第一个可用的vfs实现
         VFS vfs = null;
         for (int i = 0; vfs == null || !vfs.isValid(); i++) {
             Class<? extends VFS> impl = impls.get(i);
@@ -91,7 +96,9 @@ public abstract class VFS {
         if (log.isDebugEnabled()) {
             log.debug("Using VFS adapter " + vfs.getClass().getName());
         }
+
         VFS.instance = vfs;
+
         return VFS.instance;
     }
 

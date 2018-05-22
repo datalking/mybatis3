@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * 基于dom方式及xpath表达式解析xml
+ * 基于dom方式及xpath表达式解析xml的入口类
  *
  * @author Clinton Begin
  */
@@ -48,15 +48,16 @@ public class XPathParser {
 
     private Document document;
 
+    private XPath xpath;
+
+    // 是否开启验证/检查xml文件的格式
     private boolean validation;
 
-    // 用于离线加载本地dtd文件
+    // 用于离线加载本地dtd文件，即xml格式定义
     private EntityResolver entityResolver;
 
     // mybatis-config.xml 中<propteries>标签定义的键值对
     private Properties variables;
-
-    private XPath xpath;
 
     public XPathParser(String xml) {
         commonConstructor(false, null, null);
@@ -147,7 +148,9 @@ public class XPathParser {
     }
 
     public String evalString(Object root, String expression) {
+        // 查找指定路径的节点或属性
         String result = (String) evaluate(expression, root, XPathConstants.STRING);
+        // 处理xml节点中配置的默认值
         result = PropertyParser.parse(result, variables);
         return result;
     }
@@ -226,7 +229,7 @@ public class XPathParser {
     }
 
     /**
-     * 查找指定路径的节点或属性
+     * 查找指定路径的节点或属性，并进行类型转换
      */
     private Object evaluate(String expression, Object root, QName returnType) {
         try {
@@ -272,7 +275,7 @@ public class XPathParser {
                 }
             });
 
-            // 解析输入源
+            // 解析输入源xml
             return builder.parse(inputSource);
         } catch (Exception e) {
             throw new BuilderException("Error creating document instance.  Cause: " + e, e);

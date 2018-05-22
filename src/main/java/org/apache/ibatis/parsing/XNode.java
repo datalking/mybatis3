@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * xml中的节点
+ * 代表xml中的节点
  * 封装了rg.w3c.dom.Node的功能
  *
  * @author Clinton Begin
@@ -40,6 +40,7 @@ public class XNode {
     private String name;
     // node内容
     private String body;
+
     // node属性集合
     private Properties attributes;
     // mybatis-config.xml配置文件中<properties>节点下定义的键值对
@@ -86,22 +87,27 @@ public class XNode {
         StringBuilder builder = new StringBuilder();
         XNode current = this;
         while (current != null) {
+
             if (current != this) {
                 builder.insert(0, "_");
             }
-            String value = current.getStringAttribute("id",
-                    current.getStringAttribute("value",
-                            current.getStringAttribute("property", null)));
+
+            String value = current.getStringAttribute(
+                    "id",
+                    current.getStringAttribute("value", current.getStringAttribute("property", null))
+            );
+
             if (value != null) {
                 value = value.replace('.', '_');
                 builder.insert(0, "]");
-                builder.insert(0,
-                        value);
+                builder.insert(0, value);
                 builder.insert(0, "[");
             }
+
             builder.insert(0, current.getName());
             current = current.getParent();
         }
+
         return builder.toString();
     }
 
@@ -380,6 +386,7 @@ public class XNode {
 
         // 若当前节点不是文本节点
         if (data == null) {
+
             NodeList children = node.getChildNodes();
 
             for (int i = 0; i < children.getLength(); i++) {

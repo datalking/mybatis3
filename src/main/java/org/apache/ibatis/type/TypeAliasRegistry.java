@@ -33,12 +33,13 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
- * 默认支持的类型别名注册
+ * 默认支持的类型别名 注册中心
  *
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
 
+    // 记录别名与java类型直接的映射
     private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<>();
 
     public TypeAliasRegistry() {
@@ -128,8 +129,11 @@ public class TypeAliasRegistry {
         registerAliases(packageName, Object.class);
     }
 
+    /**
+     * 扫描指定包下的所有类，并注册别名
+     */
     public void registerAliases(String packageName, Class<?> superType) {
-        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
+        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
         resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
         Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
         for (Class<?> type : typeSet) {
@@ -141,24 +145,37 @@ public class TypeAliasRegistry {
         }
     }
 
+    /**
+     * 默认使用class名作为别名，若使用了@Alias注解则使用注解指定别名
+     */
     public void registerAlias(Class<?> type) {
+
         String alias = type.getSimpleName();
+
         Alias aliasAnnotation = type.getAnnotation(Alias.class);
         if (aliasAnnotation != null) {
             alias = aliasAnnotation.value();
         }
+
         registerAlias(alias, type);
     }
 
+    /**
+     * 注册别名与java类型的映射
+     */
     public void registerAlias(String alias, Class<?> value) {
         if (alias == null) {
             throw new TypeException("The parameter alias cannot be null");
         }
-        // issue #748
+
+        // issue #748 别名转换成小写
         String key = alias.toLowerCase(Locale.ENGLISH);
+
+        // 别名不能重复注册
         if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
             throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
         }
+
         TYPE_ALIASES.put(key, value);
     }
 

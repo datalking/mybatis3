@@ -31,6 +31,7 @@ public final class PropertyCopier {
     // 相同对象类型的属性值的复制
     public static void copyBeanProperties(Class<?> type, Object sourceBean, Object destinationBean) {
         Class<?> parent = type;
+
         while (parent != null) {
             final Field[] fields = parent.getDeclaredFields();
             for (Field field : fields) {
@@ -41,6 +42,7 @@ public final class PropertyCopier {
                     // Nothing useful to do, will only fail on final fields, which will be ignored.
                 }
             }
+
             parent = parent.getSuperclass();
         }
     }

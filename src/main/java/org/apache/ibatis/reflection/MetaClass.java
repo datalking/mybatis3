@@ -33,9 +33,9 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class MetaClass {
 
-    // 用户缓存reflector
+    // 创建类元信息的factory
     private ReflectorFactory reflectorFactory;
-    // 该class的元信息
+    // 记录类元信息的reflector
     private Reflector reflector;
 
     private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
@@ -89,8 +89,11 @@ public class MetaClass {
 
     public Class<?> getGetterType(String name) {
         PropertyTokenizer prop = new PropertyTokenizer(name);
+
         if (prop.hasNext()) {
             MetaClass metaProp = metaClassForProperty(prop);
+
+            // 递归
             return metaProp.getGetterType(prop.getChildren());
         }
         // issue #506. Resolve the type inside a Collection Object
@@ -98,18 +101,25 @@ public class MetaClass {
     }
 
     private MetaClass metaClassForProperty(PropertyTokenizer prop) {
+        // 获取表达式所表示的属性的类型
         Class<?> propType = getGetterType(prop);
         return MetaClass.forClass(propType, reflectorFactory);
     }
 
-    private Class<?> getGetterType(PropertyTokenizer prop) {
+    private Class<?>    getGetterType(PropertyTokenizer prop) {
+        // 获取属性类型
         Class<?> type = reflector.getGetterType(prop.getName());
+
+        // 该表达式中是否使用 [] 指定了下标，且是 Collection 子类
         if (prop.getIndex() != null && Collection.class.isAssignableFrom(type)) {
             Type returnType = getGenericGetterType(prop.getName());
+
             if (returnType instanceof ParameterizedType) {
                 Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
+
                 if (actualTypeArguments != null && actualTypeArguments.length == 1) {
                     returnType = actualTypeArguments[0];
+
                     if (returnType instanceof Class) {
                         type = (Class<?>) returnType;
                     } else if (returnType instanceof ParameterizedType) {

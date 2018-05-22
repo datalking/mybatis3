@@ -42,6 +42,12 @@ public class DefaultReflectorFactory implements ReflectorFactory {
         this.classCacheEnabled = classCacheEnabled;
     }
 
+    /**
+     * 为指定类创建元信息缓存
+     *
+     * @param type 指定类
+     * @return 类元信息reflector
+     */
     @Override
     public Reflector findForClass(Class<?> type) {
 
@@ -56,6 +62,7 @@ public class DefaultReflectorFactory implements ReflectorFactory {
             return cached;
 
         } else {
+
             return new Reflector(type);
         }
     }

@@ -25,7 +25,9 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
- * class解析工具类
+ * class查找 工具类
+ * 根据指定的条件查找指定包下的类，条件由 Test 接口表示
+ *
  * <p>ResolverUtil is used to locate classes that are available in the/a class path and meet
  * arbitrary conditions. The two most common conditions are that a class implements/extends
  * another class, or that is it annotated with a specific annotation. However, through the use
@@ -62,6 +64,7 @@ public class ResolverUtil<T> {
     private static final Log log = LogFactory.getLog(ResolverUtil.class);
 
     /**
+     * 定义检查class是否匹配的方法
      * A simple interface that specifies how to test classes to determine if they
      * are to be included in the results produced by the ResolverUtil.
      */
@@ -74,6 +77,7 @@ public class ResolverUtil<T> {
     }
 
     /**
+     * 用于检测类是否继承了指定的类或接口
      * A Test that checks to see if each class is assignable to the provided class. Note
      * that this test will match the parent type itself if it is presented for matching.
      */
@@ -102,6 +106,7 @@ public class ResolverUtil<T> {
     }
 
     /**
+     * 用于检测类是否添加了指定的注解
      * A Test that checks to see if each class is annotated with a specific annotation. If it
      * is, then the test returns true, otherwise false.
      */
@@ -132,7 +137,7 @@ public class ResolverUtil<T> {
     /**
      * The set of matches being accumulated.
      */
-    private Set<Class<? extends T>> matches = new HashSet<Class<? extends T>>();
+    private Set<Class<? extends T>> matches = new HashSet<>();
 
     /**
      * The ClassLoader to use when looking for classes. If null then the ClassLoader returned
@@ -213,6 +218,7 @@ public class ResolverUtil<T> {
     }
 
     /**
+     * 查找指定包下的类
      * Scans for classes starting at the package provided and descending into subpackages.
      * Each class is offered up to the Test as it is discovered, and if the Test returns
      * true the class is retained.  Accumulated classes can be fetched by calling
@@ -223,15 +229,20 @@ public class ResolverUtil<T> {
      *                    classes, e.g. {@code net.sourceforge.stripes}
      */
     public ResolverUtil<T> find(Test test, String packageName) {
+
+        // 根据包名获取其对应的路径
         String path = getPackagePath(packageName);
 
         try {
             List<String> children = VFS.getInstance().list(path);
+
             for (String child : children) {
                 if (child.endsWith(".class")) {
+                    // 检测该类是否符合 test 条件
                     addIfMatching(test, child);
                 }
             }
+
         } catch (IOException ioe) {
             log.error("Could not read package: " + packageName, ioe);
         }
@@ -240,6 +251,7 @@ public class ResolverUtil<T> {
     }
 
     /**
+     * 根据包名获取其对应的路径
      * Converts a Java package name to a path that can be looked up with a call to
      * {@link ClassLoader#getResources(String)}.
      *
@@ -260,6 +272,7 @@ public class ResolverUtil<T> {
     protected void addIfMatching(Test test, String fqn) {
         try {
             String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
+
             ClassLoader loader = getClassLoader();
             if (log.isDebugEnabled()) {
                 log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");

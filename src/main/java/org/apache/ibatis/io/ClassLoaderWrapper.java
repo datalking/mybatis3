@@ -26,8 +26,10 @@ import java.net.URL;
  */
 public class ClassLoaderWrapper {
 
+    // 应用指定的默认类加载器
     ClassLoader defaultClassLoader;
 
+    // 系统类加载器
     ClassLoader systemClassLoader;
 
     ClassLoaderWrapper() {
@@ -103,7 +105,7 @@ public class ClassLoaderWrapper {
         return classForName(name, getClassLoaders(classLoader));
     }
 
-    /*
+    /**
      * Try to get a resource from a group of classloaders
      *
      * @param resource    - the resource to get
@@ -130,7 +132,7 @@ public class ClassLoaderWrapper {
         return null;
     }
 
-    /*
+    /**
      * Get a resource as a URL using the current class path
      *
      * @param resource    - the resource to locate
@@ -148,14 +150,13 @@ public class ClassLoaderWrapper {
                 // look for the resource as passed in...
                 url = cl.getResource(resource);
 
-                // ...but some class loaders want this leading "/", so we'll add it
-                // and try again if we didn't find the resource
+                // some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
                 if (null == url) {
                     url = cl.getResource("/" + resource);
                 }
 
                 // "It's always in the last place I look for it!"
-                // ... because only an idiot would keep looking for it after finding it, so stop looking already.
+                // because only an idiot would keep looking for it after finding it, so stop looking already.
                 if (null != url) {
                     return url;
                 }
@@ -169,7 +170,7 @@ public class ClassLoaderWrapper {
 
     }
 
-    /*
+    /**
      * Attempt to load a class from a group of classloaders
      *
      * @param name        - the class to load

@@ -22,14 +22,18 @@ import java.sql.SQLException;
 
 /**
  * 数据类型转换处理 顶层接口
- * 主要声明jdbc类型与java类型转换的方法
+ * 声明jdbc类型与java类型转换的方法
+ * 一般用于单个参数以及单个列值的类型转换
+ * 如需将多列转换成一个java对象，请使用resultMap
  *
  * @author Clinton Begin
  */
 public interface TypeHandler<T> {
 
+    // sql语句参数绑定时，将java类型转换成jdbc类型
     void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
+    /// 将数据库结果集从jdbc类型转换成java类型
     T getResult(ResultSet rs, String columnName) throws SQLException;
 
     T getResult(ResultSet rs, int columnIndex) throws SQLException;

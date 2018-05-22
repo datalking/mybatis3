@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * jdbc类型枚举类
+ * jdbc类型 枚举类
  *
  * @author Clinton Begin
  */
@@ -68,7 +68,9 @@ public enum JdbcType {
     SQLXML(Types.SQLXML), // JDK6
     DATETIMEOFFSET(-155); // SQL Server 2008
 
+    // JDBC类型在 java.sql.Types 中相应的常量编码
     public final int TYPE_CODE;
+    // 维护了常量编码与JdbcType之间的对应关系
     private static Map<Integer, JdbcType> codeLookup = new HashMap<>();
 
     static {

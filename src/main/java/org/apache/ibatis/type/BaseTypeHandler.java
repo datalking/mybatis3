@@ -39,19 +39,25 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
 
     @Override
     public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
+
         if (parameter == null) {
             if (jdbcType == null) {
                 throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
             }
             try {
+
                 ps.setNull(i, jdbcType.TYPE_CODE);
             } catch (SQLException e) {
                 throw new TypeException("Error setting null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
                         "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. " +
                         "Cause: " + e, e);
             }
-        } else {
+        }
+        /// 参数不为空时
+        else {
             try {
+
+                // 处理由子类实现
                 setNonNullParameter(ps, i, parameter, jdbcType);
             } catch (Exception e) {
                 throw new TypeException("Error setting non null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
@@ -65,10 +71,13 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     public T getResult(ResultSet rs, String columnName) throws SQLException {
         T result;
         try {
+
+            /// 获取数据库结果集由子类实现
             result = getNullableResult(rs, columnName);
         } catch (Exception e) {
             throw new ResultMapException("Error attempting to get column '" + columnName + "' from result set.  Cause: " + e, e);
         }
+
         if (rs.wasNull()) {
             return null;
         } else {

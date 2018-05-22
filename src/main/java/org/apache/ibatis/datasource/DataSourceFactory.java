@@ -19,7 +19,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 /**
- * 数据源工厂接口
+ * 数据源工厂 接口
  *
  * @author Clinton Begin
  */

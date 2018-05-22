@@ -68,7 +68,7 @@ public class PropertyParser {
     }
 
     /**
-     *
+     * 解析标记占位符的名称和默认值，若存在properties定义则替换默认值
      */
     private static class VariableTokenHandler implements TokenHandler {
 
@@ -118,6 +118,7 @@ public class PropertyParser {
                 }
             }
 
+            /// content为空时，返回空
             return "${" + content + "}";
         }
     }

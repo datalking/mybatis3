@@ -41,6 +41,7 @@ public class UnpooledDataSource implements DataSource {
 
     private ClassLoader driverClassLoader;
     private Properties driverProperties;
+    // 缓存所有已注册的数据库连接驱动
     private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<>();
 
     private String driver;

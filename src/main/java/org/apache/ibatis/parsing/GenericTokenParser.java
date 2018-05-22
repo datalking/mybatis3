@@ -16,8 +16,8 @@
 package org.apache.ibatis.parsing;
 
 /**
- * 标记占位符解析器
- * 主要是查找指定占位符标记
+ * 通用的标记占位符解析器
+ * 主要用于查找指定占位符标记默认值，以及解析动态sql
  *
  * @author Clinton Begin
  */
@@ -27,6 +27,7 @@ public class GenericTokenParser {
     private final String openToken;
     // 占位符结束标记
     private final String closeToken;
+
     // 占位符标记解析处理
     private final TokenHandler handler;
 
@@ -36,22 +37,26 @@ public class GenericTokenParser {
         this.handler = handler;
     }
 
+    /**
+     * 顺序查找 openToken 和 closeToken，解析得到占位符的字面值
+     */
     public String parse(String text) {
         if (text == null || text.isEmpty()) {
             return "";
         }
         char[] src = text.toCharArray();
         int offset = 0;
+
         // search open token 查找开始标记
         int start = text.indexOf(openToken, offset);
         if (start == -1) {
             return text;
         }
+
         // 记录解析后的字符串
         final StringBuilder builder = new StringBuilder();
         // 记录标记占位符字面量
         StringBuilder expression = null;
-
         while (start > -1) {
 
             if (start > 0 && src[start - 1] == '\\') {
@@ -66,12 +71,14 @@ public class GenericTokenParser {
                 } else {
                     expression.setLength(0);
                 }
+
                 // 将前面的字符串追加到 builder 中
                 builder.append(src, offset, start - offset);
                 offset = start + openToken.length();
                 // 从 offset 向后继续查找结束标记
                 int end = text.indexOf(closeToken, offset);
                 while (end > -1) {
+
                     if (end > offset && src[end - 1] == '\\') {
                         // this close token is escaped. remove the backslash and continue.
                         // 处理转义的结束标记
@@ -101,9 +108,11 @@ public class GenericTokenParser {
             // 移动 start
             start = text.indexOf(openToken, offset);
         }
+
         if (offset < src.length) {
             builder.append(src, offset, src.length - offset);
         }
+
         return builder.toString();
     }
 }

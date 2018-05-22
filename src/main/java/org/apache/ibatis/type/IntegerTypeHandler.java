@@ -30,12 +30,14 @@ public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Integer parameter, JdbcType jdbcType)
             throws SQLException {
+
         ps.setInt(i, parameter);
     }
 
     @Override
     public Integer getNullableResult(ResultSet rs, String columnName)
             throws SQLException {
+
         return rs.getInt(columnName);
     }
 

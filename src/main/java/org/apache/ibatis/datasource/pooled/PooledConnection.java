@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
- * 数据源连接池
+ * 连接池的实现类 基于jdk动态代理
  *
  * @author Clinton Begin
  */
@@ -34,13 +34,25 @@ class PooledConnection implements InvocationHandler {
     private static final Class<?>[] IFACES = new Class<?>[]{Connection.class};
 
     private int hashCode = 0;
+
+    // 数据源信息
     private PooledDataSource dataSource;
+
+    // 真正的Connection对象
     private Connection realConnection;
+
+    // Connection的代理对象
     private Connection proxyConnection;
+
+    // 从连接池中取出该连接的时间戳
     private long checkoutTimestamp;
+    // 该连接创建的时间戳
     private long createdTimestamp;
+    // 最后一次被使用的时间戳
     private long lastUsedTimestamp;
+    // 由数据库URL、用户名和密码计算出来的hash值，可用于标识该连接所在的连接池
     private int connectionTypeCode;
+    // 检测当前PooledConnection是否有效，为了防止调用close()方法后依然使用
     private boolean valid;
 
     /**
@@ -233,7 +245,10 @@ class PooledConnection implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
         String methodName = method.getName();
+
+        /// 如采调用 close()方法，则将其重新放入连接池，而不是真正关闭数据库连接
         if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
             dataSource.pushConnection(this);
             return null;

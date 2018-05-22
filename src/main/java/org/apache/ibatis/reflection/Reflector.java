@@ -81,10 +81,12 @@ public class Reflector {
      */
     public Reflector(Class<?> clazz) {
         type = clazz;
+
         addDefaultConstructor(clazz);
         addGetMethods(clazz);
         addSetMethods(clazz);
         addFields(clazz);
+
         readablePropertyNames = getMethods.keySet().toArray(new String[getMethods.keySet().size()]);
         writeablePropertyNames = setMethods.keySet().toArray(new String[setMethods.keySet().size()]);
         for (String propName : readablePropertyNames) {
@@ -125,14 +127,15 @@ public class Reflector {
             if (method.getParameterTypes().length > 0) {
                 continue;
             }
+
             String name = method.getName();
-            // JavaBean 中 getter 方法的方法名长度大于 3 且必须以get或is开头
+            // JavaBean 中 getter 方法的方法名必须以get或is开头，且长度大于 3/2
             if ((name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2)) {
 
                 // 按照 JavaBean 的规范，获取对应的属性名称
                 name = PropertyNamer.methodToProperty(name);
 
-                // 将属性名与 getter 方法的对反关系记录到conflictingGetters集合中
+                // 将属性名与 getter 方法的对应关系记录到conflictingGetters集合中
                 addMethodConflict(conflictingGetters, name, method);
             }
         }
@@ -172,9 +175,11 @@ public class Reflector {
                         winner = candidate;
                     }
                 } else if (candidateType.isAssignableFrom(winnerType)) {
+
                     // 如果candidate是超类，则返回值应该是winner
                     // OK getter type is descendant
                 } else if (winnerType.isAssignableFrom(candidateType)) {
+
                     // 如果winner是超类，则返回值应该是candidate
                     winner = candidate;
                 } else {
@@ -279,21 +284,27 @@ public class Reflector {
     private Class<?> typeToClass(Type src) {
         Class<?> result = null;
         if (src instanceof Class) {
+
             result = (Class<?>) src;
         } else if (src instanceof ParameterizedType) {
+
             result = (Class<?>) ((ParameterizedType) src).getRawType();
         } else if (src instanceof GenericArrayType) {
             Type componentType = ((GenericArrayType) src).getGenericComponentType();
             if (componentType instanceof Class) {
+
                 result = Array.newInstance((Class<?>) componentType, 0).getClass();
             } else {
+
                 Class<?> componentClass = typeToClass(componentType);
                 result = Array.newInstance(componentClass, 0).getClass();
             }
         }
+
         if (result == null) {
             result = Object.class;
         }
+
         return result;
     }
 
@@ -322,6 +333,7 @@ public class Reflector {
                         addSetField(field);
                     }
                 }
+
                 if (!getMethods.containsKey(field.getName())) {
                     addGetField(field);
                 }
@@ -392,9 +404,12 @@ public class Reflector {
     private void addUniqueMethods(Map<String, Method> uniqueMethods, Method[] methods) {
 
         for (Method currentMethod : methods) {
+
             if (!currentMethod.isBridge()) {
-                // 得到的方法签名是：返回值类型＃方法名称：参数类型列表
+
+                // 得到的方法签名是：返回值类型＃方法名称:参数1类型,参数2类型
                 String signature = getSignature(currentMethod);
+
                 // check to see if the method is already known
                 // if it is known, then an extended class must have overridden a method
                 if (!uniqueMethods.containsKey(signature)) {
@@ -416,7 +431,7 @@ public class Reflector {
      * 获取方法签名
      *
      * @param method 方法对象
-     * @return 返回值类型 # 方法名 : 参数类型名1,参数类型名2
+     * @return 返回值类型 # 方法名 : 参数1类型名,参数2类型名
      */
     private String getSignature(Method method) {
         StringBuilder sb = new StringBuilder();

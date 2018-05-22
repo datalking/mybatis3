@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * 基于反射调用对象的方法 接口
+ * 用于封装getter/setter对应的Method对象，以及字段对应的Field对象
  *
  * @author Clinton Begin
  */

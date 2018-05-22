@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 指定与其关联的 Java类型
+ * 指明该TypeHandler实现类能够处理的Java类型
  *
  * @author Eduardo Macarron
  */

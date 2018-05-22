@@ -30,7 +30,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 /**
  * 对象元信息
  * 根据传入的原始对象的类型以及ObjectFactory创建相应的 ObjectWrapper
- * 属性表达式解析的入口
+ * 属性表达式解析的入口，与ObjectWrapper配合使用
  *
  * @author Clinton Begin
  */
@@ -53,15 +53,24 @@ public class MetaObject {
         this.objectWrapperFactory = objectWrapperFactory;
         this.reflectorFactory = reflectorFactory;
 
+        /// 若原始对象已经是 ObjectWrapper 对象，则直接使用
         if (object instanceof ObjectWrapper) {
             this.objectWrapper = (ObjectWrapper) object;
-        } else if (objectWrapperFactory.hasWrapperFor(object)) {
+        }
+        /// 若 ObjectWrapperFactory 能够为该原始对象创建对应的 ObjectWrapper 对象，则由优先使用
+        else if (objectWrapperFactory.hasWrapperFor(object)) {
             this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
-        } else if (object instanceof Map) {
+        }
+        /// 若原始对象为 Map 类型 ， 则创建 MapWrapper 对象
+        else if (object instanceof Map) {
             this.objectWrapper = new MapWrapper(this, (Map) object);
-        } else if (object instanceof Collection) {
+        }
+        /// 若原始对象是 Collect工on 类型，贝1Ji1J 建 CollectionWrapper 对象
+        else if (object instanceof Collection) {
             this.objectWrapper = new CollectionWrapper(this, (Collection) object);
-        } else {
+        }
+        /// 若原始对象是普通的 JavaBean 对象，则创建 BeanWrapper 对象
+        else {
             this.objectWrapper = new BeanWrapper(this, object);
         }
     }

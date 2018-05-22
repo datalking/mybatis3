@@ -43,6 +43,7 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
         this.connection = conn;
     }
 
+    // 为prepareStatement()、 prepareCall()、 createstatement()等方法提供了代理
     @Override
     public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
         try {

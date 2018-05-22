@@ -19,6 +19,7 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
 /**
  * 池化的数据源工厂类
+ * 继承了UnpooledDataSourceFactory
  *
  * @author Clinton Begin
  */

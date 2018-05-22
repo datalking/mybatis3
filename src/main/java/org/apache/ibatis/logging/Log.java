@@ -17,6 +17,7 @@ package org.apache.ibatis.logging;
 
 /**
  * 日志定义 接口
+ * mybatis默认提供了4个级别的日志
  *
  * @author Clinton Begin
  */
@@ -30,10 +31,11 @@ public interface Log {
 
     void error(String s);
 
+    void warn(String s);
+
     void debug(String s);
 
     void trace(String s);
 
-    void warn(String s);
 
 }

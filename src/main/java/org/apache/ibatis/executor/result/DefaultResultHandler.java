@@ -29,6 +29,7 @@ import org.apache.ibatis.session.ResultHandler;
  */
 public class DefaultResultHandler implements ResultHandler<Object> {
 
+    // 暂存映射得到的结果对象
     private final List<Object> list;
 
     public DefaultResultHandler() {

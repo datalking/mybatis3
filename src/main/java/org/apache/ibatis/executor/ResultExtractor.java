@@ -24,6 +24,7 @@ import java.util.List;
 
 /**
  * 从result list中提取对象的入口
+ * 用于将延迟加载得到的结果对象转换成targetType类型的对象
  *
  * @author Andrew Gustafson
  */
@@ -37,17 +38,24 @@ public class ResultExtractor {
         this.objectFactory = objectFactory;
     }
 
+    /**
+     * 从结果集中获取第一个对象
+     */
     public Object extractObjectFromList(List<Object> list, Class<?> targetType) {
         Object value = null;
+
+        /// 如果目标对象类型为 List ，则无须转换
         if (targetType != null && targetType.isAssignableFrom(list.getClass())) {
-
             value = list;
-        } else if (targetType != null && objectFactory.isCollection(targetType)) {
-
+        }
+        /// 如果目标对象类型是 Collection 子类
+        else if (targetType != null && objectFactory.isCollection(targetType)) {
             value = objectFactory.create(targetType);
             MetaObject metaObject = configuration.newMetaObject(value);
             metaObject.addAll(list);
-        } else if (targetType != null && targetType.isArray()) {
+        }
+        /// 如果目标对象类型是数组类型(其中项可以是基本类型，也可以是 对象类型)，则创建targetType类型的集合对象，并复制List<Object>中的项
+        else if (targetType != null && targetType.isArray()) {
             Class<?> arrayComponentType = targetType.getComponentType();
             Object array = Array.newInstance(arrayComponentType, list.size());
             if (arrayComponentType.isPrimitive()) {
@@ -58,7 +66,10 @@ public class ResultExtractor {
             } else {
                 value = list.toArray((Object[]) array);
             }
-        } else {
+        }
+        /// 如果目标对象是普通Java对象且延迟加载得到的List大小为 1，则将其中唯一的项作为转换后的对象返回
+        else {
+
             if (list != null && list.size() > 1) {
                 throw new ExecutorException("Statement returned more than one row, where no more than one was expected.");
             } else if (list != null && list.size() == 1) {

@@ -55,6 +55,8 @@ public final class MappedStatement {
     private List<ResultMap> resultMaps;
     private boolean flushCacheRequired;
     private boolean useCache;
+
+    // 若为false，则在映射完一个结果集之后，nestedResultObjects集合中的记录才会被清空
     private boolean resultOrdered;
     private KeyGenerator keyGenerator;
     private String[] keyProperties;

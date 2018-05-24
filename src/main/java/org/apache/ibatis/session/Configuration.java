@@ -102,6 +102,9 @@ public class Configuration {
     protected boolean safeRowBoundsEnabled;
     protected boolean safeResultHandlerEnabled = true;
     protected boolean mapUnderscoreToCamelCase;
+    // 延迟加载全局开关
+    protected boolean lazyLoadingEnabled = false;
+    // 若为true，则表示有延迟加载属性的对象在被调用，将完全加载其属性
     protected boolean aggressiveLazyLoading;
     protected boolean multipleResultSetsEnabled = true;
     protected boolean useGeneratedKeys;
@@ -117,12 +120,13 @@ public class Configuration {
     protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
     protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
 
-    protected Set<String> lazyLoadTriggerMethods = new HashSet<>(
-            Arrays.asList(new String[]{"equals", "clone", "hashCode", "toString"}));
+    protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList(new String[]{"equals", "clone", "hashCode", "toString"}));
 
     protected Integer defaultStatementTimeout;
     protected Integer defaultFetchSize;
     protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+
+    // 默认PARTIAL，会开启自动映射
     protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
     protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
@@ -131,7 +135,6 @@ public class Configuration {
     protected ObjectFactory objectFactory = new DefaultObjectFactory();
     protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
-    protected boolean lazyLoadingEnabled = false;
     // #224 Using internal Javassist instead of OGNL
     protected ProxyFactory proxyFactory = new JavassistProxyFactory();
 

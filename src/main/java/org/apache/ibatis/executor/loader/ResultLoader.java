@@ -35,7 +35,7 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
- * 结果加载器
+ * 保存一次延迟加载操作所需的全部信息
  *
  * @author Clinton Begin
  */
@@ -44,16 +44,22 @@ public class ResultLoader {
     protected final Configuration configuration;
     protected final Executor executor;
     protected final MappedStatement mappedStatement;
+    // 记录延迟执行的SQL语句的实参
     protected final Object parameterObject;
+    // 记录延迟加载得到的对象类型
     protected final Class<?> targetType;
+    // 记录延迟加载得到的结果对象
+    protected Object resultObject;
     protected final ObjectFactory objectFactory;
     protected final CacheKey cacheKey;
     protected final BoundSql boundSql;
+    // 用于将延迟加载得到的结果对象转换成targetType类型的对象
     protected final ResultExtractor resultExtractor;
+    // 创建ResultLoader的线程id
     protected final long creatorThreadId;
 
     protected boolean loaded;
-    protected Object resultObject;
+
 
     public ResultLoader(Configuration config, Executor executor, MappedStatement mappedStatement, Object parameterObject, Class<?> targetType, CacheKey cacheKey, BoundSql boundSql) {
         this.configuration = config;
@@ -68,19 +74,29 @@ public class ResultLoader {
         this.creatorThreadId = Thread.currentThread().getId();
     }
 
+    /**
+     * 执行sql语句，返回延迟加载对象
+     */
     public Object loadResult() throws SQLException {
+
+        // 执行延迟加载，得到结果对象，并以 List 的形式返回
         List<Object> list = selectList();
+
+        // 将 list 集合转换成 targetType 指定类型的对象
         resultObject = resultExtractor.extractObjectFromList(list, targetType);
         return resultObject;
     }
 
     private <E> List<E> selectList() throws SQLException {
-        Executor localExecutor = executor;
+        Executor localExecutor =
+                executor;
         if (Thread.currentThread().getId() != this.creatorThreadId || localExecutor.isClosed()) {
             localExecutor = newExecutor();
         }
+
         try {
-            return localExecutor.<E>query(mappedStatement, parameterObject, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
+            // 执行sql，获取结果对象
+            return localExecutor.query(mappedStatement, parameterObject, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
         } finally {
             if (localExecutor != executor) {
                 localExecutor.close(false);

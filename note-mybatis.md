@@ -54,6 +54,9 @@ orm映射、查询缓存、动态sql、二级缓存
 
 ## mybatis的设计与实现
 
+- 重点
+    - 简单映射、嵌套映射、嵌套查询的实现
+
 - @Insert是直接配置SQL语句，而@InsertProvider则是通过SQL工厂类及对应的方法生产SQL语句，优点是可以根据不同的需求生产出不同的SQL
 
 - mybatis架构

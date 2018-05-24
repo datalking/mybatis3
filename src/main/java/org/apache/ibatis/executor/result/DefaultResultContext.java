@@ -24,8 +24,13 @@ import org.apache.ibatis.session.ResultContext;
  */
 public class DefaultResultContext<T> implements ResultContext<T> {
 
+    // 暂存映射后的结果对象，之后会将该对象放入 DefaultResultHandler.list
     private T resultObject;
+
+    // 记录经过 DefaultResultContext 暂存的对象个数
     private int resultCount;
+
+    // 控制是否停止映射
     private boolean stopped;
 
     public DefaultResultContext() {

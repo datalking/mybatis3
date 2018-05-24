@@ -31,6 +31,7 @@ import org.apache.ibatis.session.ResultHandler;
  */
 public class DefaultMapResultHandler<K, V> implements ResultHandler<V> {
 
+    // 暂存映射得到的结果对象
     private final Map<K, V> mappedResults;
     private final String mapKey;
     private final ObjectFactory objectFactory;

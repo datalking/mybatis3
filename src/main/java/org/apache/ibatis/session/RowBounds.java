@@ -16,7 +16,7 @@
 package org.apache.ibatis.session;
 
 /**
- * 行记录的范围
+ * 行记录范围
  *
  * @author Clinton Begin
  */

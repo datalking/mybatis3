@@ -42,13 +42,15 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * 结果加载的map
+ * 结果集加载的map
+ * 延迟加载处理
  *
  * @author Clinton Begin
  * @author Franta Mejta
  */
 public class ResultLoaderMap {
 
+    // 保存对象中延迟加载属性及其对应的ResultLoader对象之间的关系
     private final Map<String, LoadPair> loaderMap = new HashMap<>();
 
     public void addLoader(String property, MetaObject metaResultObject, ResultLoader resultLoader) {
@@ -77,6 +79,7 @@ public class ResultLoaderMap {
         return loaderMap.containsKey(property.toUpperCase(Locale.ENGLISH));
     }
 
+    // 加载该对象中指定的延迟加载属性
     public boolean load(String property) throws SQLException {
         LoadPair pair = loaderMap.remove(property.toUpperCase(Locale.ENGLISH));
         if (pair != null) {
@@ -86,6 +89,7 @@ public class ResultLoaderMap {
         return false;
     }
 
+    // 加载该对象中全部的延迟加载属性
     public void loadAll() throws SQLException {
         final Set<String> methodNameSet = loaderMap.keySet();
         String[] methodNames = methodNameSet.toArray(new String[methodNameSet.size()]);
@@ -114,10 +118,12 @@ public class ResultLoaderMap {
          */
         private final transient Object serializationCheck = new Object();
         /**
+         * 外层对象（ 一般是外层对象的代理对象）对应的 MetaObject 对象
          * Meta object which sets loaded properties.
          */
         private transient MetaObject metaResultObject;
         /**
+         * 负责加载延迟加载属性的 ResultLoader 对象
          * Result loader which loads unread properties.
          */
         private transient ResultLoader resultLoader;
@@ -130,10 +136,12 @@ public class ResultLoaderMap {
          */
         private Class<?> configurationFactory;
         /**
+         * 延迟加载的属性名称
          * Name of the unread property.
          */
         private String property;
         /**
+         * 用于加载属性的SQL语句的 ID
          * ID of SQL statement which loads the property.
          */
         private String mappedStatement;

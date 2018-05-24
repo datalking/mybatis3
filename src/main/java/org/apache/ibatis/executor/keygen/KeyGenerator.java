@@ -27,8 +27,10 @@ import org.apache.ibatis.mapping.MappedStatement;
  */
 public interface KeyGenerator {
 
+    // 在执行 insert 之前执行，设置属性 order＝ BEFORE
     void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
 
+    // 在执行 insert 之后执行，设置属性 order＝ AFTER
     void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
 
 }

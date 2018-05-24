@@ -18,7 +18,7 @@ package org.apache.ibatis.cursor;
 import java.io.Closeable;
 
 /**
- * 使用Iterator迭代器模式处理结果集的接口
+ * 基于Iterator迭代器模式处理结果集 接口
  * <p>
  * Cursor contract to handle fetching items lazily using an Iterator.
  * Cursors are a perfect fit to handle millions of items queries that would not normally fits in memory.

@@ -56,15 +56,22 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 
     @Override
     public void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
-        processBatch(ms, stmt, getParameters(parameter));
+
+        // 将用户传入的实参转换成Collection类型对象
+        Collection<Object> parameters = getParameters(parameter);
+
+        processBatch(ms, stmt, parameters);
     }
 
+    // 将SQL语句执行后生成的主键记录到用户传递的实参
     public void processBatch(MappedStatement ms, Statement stmt, Collection<Object> parameters) {
         ResultSet rs = null;
         try {
             rs = stmt.getGeneratedKeys();
             final Configuration configuration = ms.getConfiguration();
             final TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+
+            // 获得 keyProperties 属性指定的属性名称，它表示主键对应的属性名称
             final String[] keyProperties = ms.getKeyProperties();
             final ResultSetMetaData rsmd = rs.getMetaData();
             TypeHandler<?>[] typeHandlers = null;
@@ -94,11 +101,16 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
         }
     }
 
+    // 将用户传入的实参转换成 Collection 类型对象
     private Collection<Object> getParameters(Object parameter) {
         Collection<Object> parameters = null;
+
+        /// 参数为 Collection 类型
         if (parameter instanceof Collection) {
             parameters = (Collection) parameter;
-        } else if (parameter instanceof Map) {
+        }
+        /// 参数为 Map 类型，则获取其中指定的 key
+        else if (parameter instanceof Map) {
             Map parameterMap = (Map) parameter;
             if (parameterMap.containsKey("collection")) {
                 parameters = (Collection) parameterMap.get("collection");
@@ -108,10 +120,13 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
                 parameters = Arrays.asList((Object[]) parameterMap.get("array"));
             }
         }
+
+        /// 参数为普通对象或不包含上述 key 的 Map 集合，则创建 ArrayList
         if (parameters == null) {
             parameters = new ArrayList<>();
             parameters.add(parameter);
         }
+
         return parameters;
     }
 

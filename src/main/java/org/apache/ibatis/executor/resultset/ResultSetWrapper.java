@@ -38,6 +38,7 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * resultSet封装类
+ * 记录了ResultSet的一些元数据和操作方法
  *
  * @author Iwao AVE!
  */
@@ -45,11 +46,19 @@ public class ResultSetWrapper {
 
     private final ResultSet resultSet;
     private final TypeHandlerRegistry typeHandlerRegistry;
+
+    // 记录 ResultSet 中每列的列名
     private final List<String> columnNames = new ArrayList<>();
+    // 记录 ResultSet 中每列对应的 Java类型全名
     private final List<String> classNames = new ArrayList<>();
+    // 记录 ResultSet 中每列对应的 JdbcType类型
     private final List<JdbcType> jdbcTypes = new ArrayList<>();
+
+    // 记录每列对应的 TypeHandler 对象，key是列名，value是TypeHandler集合
     private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<>();
+    // 记录已映射的列名，key是ResultMap对象的id，value是该ResultMap对象映射的列名集合
     private Map<String, List<String>> mappedColumnNamesMap = new HashMap<>();
+    // 记录未映射的列名
     private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<>();
 
     public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
@@ -157,12 +166,19 @@ public class ResultSetWrapper {
         unMappedColumnNamesMap.put(getMapKey(resultMap, columnPrefix), unmappedColumnNames);
     }
 
+    /**
+     * 获取指定ResultMap对象中明确映射的列名集合
+     */
     public List<String> getMappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
+
+        // 查找被映射的列名，key由ResultMap的id与列前缀组成
         List<String> mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
+
         if (mappedColumnNames == null) {
             loadMappedAndUnmappedColumnNames(resultMap, columnPrefix);
             mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
         }
+
         return mappedColumnNames;
     }
 

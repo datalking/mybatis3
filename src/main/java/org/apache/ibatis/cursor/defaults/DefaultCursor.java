@@ -38,18 +38,22 @@ import java.util.NoSuchElementException;
  */
 public class DefaultCursor<T> implements Cursor<T> {
 
-    // ResultSetHandler stuff
     private final DefaultResultSetHandler resultSetHandler;
     private final ResultMap resultMap;
     private final ResultSetWrapper rsw;
+    // 指定对结果集进行映射的起止位置
     private final RowBounds rowBounds;
+    // 用于暂存映射的结果对象
     private final ObjectWrapperResultHandler<T> objectWrapperResultHandler = new ObjectWrapperResultHandler<>();
 
+    // 通过该迭代器获取映射得到的结果对象
     private final CursorIterator cursorIterator = new CursorIterator();
+    // 标识是否正在迭代结果集
     private boolean iteratorRetrieved;
+    // 记录已经完成映射的行数
+    private int indexWithRowBound = -1;
 
     private CursorStatus status = CursorStatus.CREATED;
-    private int indexWithRowBound = -1;
 
     private enum CursorStatus {
 

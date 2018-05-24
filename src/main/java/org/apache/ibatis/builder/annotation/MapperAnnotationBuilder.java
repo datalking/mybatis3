@@ -96,8 +96,8 @@ import org.apache.ibatis.type.UnknownTypeHandler;
  */
 public class MapperAnnotationBuilder {
 
-    private final Set<Class<? extends Annotation>> sqlAnnotationTypes = new HashSet<Class<? extends Annotation>>();
-    private final Set<Class<? extends Annotation>> sqlProviderAnnotationTypes = new HashSet<Class<? extends Annotation>>();
+    private final Set<Class<? extends Annotation>> sqlAnnotationTypes = new HashSet<>();
+    private final Set<Class<? extends Annotation>> sqlProviderAnnotationTypes = new HashSet<>();
 
     private Configuration configuration;
 
@@ -122,26 +122,46 @@ public class MapperAnnotationBuilder {
         sqlProviderAnnotationTypes.add(DeleteProvider.class);
     }
 
+    /**
+     * 解析 Mapper 接口中的注解信息
+     */
     public void parse() {
         String resource = type.toString();
+
+        /// 若未加载过该接口
         if (!configuration.isResourceLoaded(resource)) {
+
+            // 检测是否加载过对应的映射配置文件，如未加载，则创建 XMLMapperBuilder 对象解析对应的映射文件
             loadXmlResource();
+
             configuration.addLoadedResource(resource);
             assistant.setCurrentNamespace(type.getName());
+
+            // 解析 @CacheNamespace 注解
             parseCache();
+            // 解析 @CacheNamespaceRef 注解
             parseCacheRef();
+
+            // 获取接口中定义的全部方法
             Method[] methods = type.getMethods();
             for (Method method : methods) {
                 try {
                     // issue #237
                     if (!method.isBridge()) {
+
+                        // 解析 @SelectKey、@ResultMap 等注解，并创建 MappedStatement 对象
                         parseStatement(method);
                     }
                 } catch (IncompleteElementException e) {
+
+                    // 如采解析过程出现 IncompleteElementException 异常， 可能是引用了未解析的注解
+                    // 先将出现异常的方法添加到 Configuration.incompleteMethods 集合中暂存
                     configuration.addIncompleteMethod(new MethodResolver(this, method));
                 }
             }
         }
+
+        // 重新进行解析异常的内容
         parsePendingMethods();
     }
 

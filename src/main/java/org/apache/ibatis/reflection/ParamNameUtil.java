@@ -25,7 +25,8 @@ import java.util.List;
 import org.apache.ibatis.lang.UsesJava8;
 
 /**
- * 参数名工具类
+ * 方法参数名操作 工具类
+ * java 8才可用
  */
 @UsesJava8
 public class ParamNameUtil {
@@ -43,11 +44,14 @@ public class ParamNameUtil {
     }
 
     private static List<String> getParameterNames(Executable executable) {
+        // 用来存储索引参数名
         final List<String> names = new ArrayList<>();
+
         final Parameter[] params = executable.getParameters();
         for (Parameter param : params) {
             names.add(param.getName());
         }
+
         return names;
     }
 

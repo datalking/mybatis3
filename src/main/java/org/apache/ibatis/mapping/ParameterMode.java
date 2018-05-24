@@ -16,10 +16,12 @@
 package org.apache.ibatis.mapping;
 
 /**
- * 参数模式 枚举类
+ * 存储过程中的参数类型 枚举类
  *
  * @author Clinton Begin
  */
 public enum ParameterMode {
+
     IN, OUT, INOUT
+
 }

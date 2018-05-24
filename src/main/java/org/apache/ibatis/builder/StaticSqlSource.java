@@ -24,6 +24,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * 普通静态sql语句对应的对象
+ * 可能含有 ？占位符，但是可以直接提交给数据库执行
  *
  * @author Clinton Begin
  */

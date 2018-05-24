@@ -24,7 +24,9 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * 实际执行的sql字符串，动态sql已处理
+ * 实际执行的sql字符串
+ * 动态sql已处理
+ * StaticSqlSource、DynamicSqlSource、RawSqlSource最终都会统一生成 BoundSql 对象
  * <p>
  * An actual SQL String got from an {@link SqlSource} after having processed any dynamic content.
  * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings
@@ -37,10 +39,19 @@ import org.apache.ibatis.session.Configuration;
  */
 public class BoundSql {
 
+    // SQL语句，可能含有 ? 占位符
     private String sql;
+
+    // SQL中的参数属性集合
     private List<ParameterMapping> parameterMappings;
+
+    // 客户端执行SQL时传入的实际参数
     private Object parameterObject;
+
+    // 空的HashMap集合，之后会复制DynamicContext.bindings集合中的内容
     private Map<String, Object> additionalParameters;
+
+    // additionalParameters集合对应的MetaObject对象
     private MetaObject metaParameters;
 
     public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {

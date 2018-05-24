@@ -35,6 +35,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * resultMap定义
+ * 每个<resultMap>节点都会被解析成一个 ResultMap 对象，它的每个子节点所定义的映射关系，则使用 ResultMapping 对象表示
  *
  * @author Clinton Begin
  */
@@ -42,22 +43,37 @@ public class ResultMap {
 
     private Configuration configuration;
 
+    // id属性
     private String id;
+    // type属性
     private Class<?> type;
+
+    // 记录了除<discriminator>节点之外的其他映射关系
     private List<ResultMapping> resultMappings;
+    // 记录了映射关系中带有 ID 标志的映射关系，例如id节点和constructor节点的idArg子节点
     private List<ResultMapping> idResultMappings;
+    // 记录了映射关系中带有 Constructor 标志的映射关系，例如<constructor>所有子元素
     private List<ResultMapping> constructorResultMappings;
+    // 记录了映射关系中不带有 Constructor 标志的映射关系
     private List<ResultMapping> propertyResultMappings;
+    // 记录所有映射关系中涉及的 column 属性的集合
     private Set<String> mappedColumns;
     private Set<String> mappedProperties;
+    // 鉴别器，对应<discriminator>节点
     private Discriminator discriminator;
+    // 是否含有嵌套结果集
     private boolean hasNestedResultMaps;
+    // 是否含有嵌套查询 ， 如果某个属性映射存在 select 属性，则为true
     private boolean hasNestedQueries;
+    // 是否开启自动映射，true则自动查找与列名同名的属性名并调用setter方法，false则需在resultMap节点内明确指定映射关系才会调用对应的setter方法
     private Boolean autoMapping;
 
     private ResultMap() {
     }
 
+    /**
+     * ResultMap的建造者
+     */
     public static class Builder {
         private static final Log log = LogFactory.getLog(Builder.class);
 
@@ -88,12 +104,12 @@ public class ResultMap {
             if (resultMap.id == null) {
                 throw new IllegalArgumentException("ResultMaps must have an id");
             }
-            resultMap.mappedColumns = new HashSet<String>();
-            resultMap.mappedProperties = new HashSet<String>();
-            resultMap.idResultMappings = new ArrayList<ResultMapping>();
-            resultMap.constructorResultMappings = new ArrayList<ResultMapping>();
-            resultMap.propertyResultMappings = new ArrayList<ResultMapping>();
-            final List<String> constructorArgNames = new ArrayList<String>();
+            resultMap.mappedColumns = new HashSet<>();
+            resultMap.mappedProperties = new HashSet<>();
+            resultMap.idResultMappings = new ArrayList<>();
+            resultMap.constructorResultMappings = new ArrayList<>();
+            resultMap.propertyResultMappings = new ArrayList<>();
+            final List<String> constructorArgNames = new ArrayList<>();
             for (ResultMapping resultMapping : resultMap.resultMappings) {
                 resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
                 resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);

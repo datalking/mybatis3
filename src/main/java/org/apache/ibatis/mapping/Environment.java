@@ -21,6 +21,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
  * 数据源环境变量
+ * 对应<environment>节点配置
  *
  * @author Clinton Begin
  */

@@ -35,12 +35,19 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public abstract class BaseBuilder {
 
+    // mybatis的配置对象，全局唯一
     protected final Configuration configuration;
+
+    // 类别名的注册中心，全局唯一，引用configuration中的对象
     protected final TypeAliasRegistry typeAliasRegistry;
+
+    // 类型转换处理器的注册中心，全局唯一，引用configuration中的对象
     protected final TypeHandlerRegistry typeHandlerRegistry;
 
     public BaseBuilder(Configuration configuration) {
         this.configuration = configuration;
+
+        /// 引用configuration中的对象
         this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
         this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
     }
@@ -63,9 +70,12 @@ public abstract class BaseBuilder {
 
     protected Set<String> stringSetValueOf(String value, String defaultValue) {
         value = (value == null ? defaultValue : value);
-        return new HashSet<String>(Arrays.asList(value.split(",")));
+        return new HashSet<>(Arrays.asList(value.split(",")));
     }
 
+    /**
+     * str转枚举类
+     */
     protected JdbcType resolveJdbcType(String alias) {
         if (alias == null) {
             return null;
@@ -77,6 +87,9 @@ public abstract class BaseBuilder {
         }
     }
 
+    /**
+     * str转枚举类
+     */
     protected ResultSetType resolveResultSetType(String alias) {
         if (alias == null) {
             return null;
@@ -88,6 +101,9 @@ public abstract class BaseBuilder {
         }
     }
 
+    /**
+     * str转枚举类
+     */
     protected ParameterMode resolveParameterMode(String alias) {
         if (alias == null) {
             return null;
@@ -135,6 +151,9 @@ public abstract class BaseBuilder {
         return resolveTypeHandler(javaType, typeHandlerType);
     }
 
+    /**
+     * 解析类型转换处理器
+     */
     protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
         if (typeHandlerType == null) {
             return null;
@@ -148,7 +167,11 @@ public abstract class BaseBuilder {
         return handler;
     }
 
+    /**
+     * 解析类别名
+     */
     protected Class<?> resolveAlias(String alias) {
         return typeAliasRegistry.resolveAlias(alias);
     }
+
 }

@@ -30,11 +30,15 @@ import org.apache.ibatis.cache.Cache;
 public class LruCache implements Cache {
 
     private final Cache delegate;
+
+    // 是一个有序的 HashMap ，用于记录 key 最近的使用情况
     private Map<Object, Object> keyMap;
+
     private Object eldestKey;
 
     public LruCache(Cache delegate) {
         this.delegate = delegate;
+        // 默认设置的缓存大小是 1024
         setSize(1024);
     }
 

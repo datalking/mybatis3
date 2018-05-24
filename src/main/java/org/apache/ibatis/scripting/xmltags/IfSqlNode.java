@@ -16,13 +16,19 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
- * if节点信息
+ * if节点
  *
  * @author Clinton Begin
  */
 public class IfSqlNode implements SqlNode {
+
+    // 用于解析<if>节点的 test表达式的值
     private ExpressionEvaluator evaluator;
+
+    // 记录了<if>节点中的 test表达式
     private String test;
+
+    // 记录了<if>节点的子节点
     private SqlNode contents;
 
     public IfSqlNode(SqlNode contents, String test) {

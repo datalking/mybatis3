@@ -130,6 +130,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
                              boolean readWrite,
                              boolean blocking,
                              Properties props) {
+
         Cache cache = new CacheBuilder(currentNamespace)
                 .implementation(valueOrDefault(typeClass, PerpetualCache.class))
                 .addDecorator(valueOrDefault(evictionClass, LruCache.class))
@@ -139,6 +140,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 .blocking(blocking)
                 .properties(props)
                 .build();
+
         configuration.addCache(cache);
         currentCache = cache;
         return cache;
@@ -175,6 +177,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 .build();
     }
 
+    /**
+     * 创建 ResultMap 对象， 并将 ResultMap 对象添加到 Configuration.resultMaps 集合中保存
+     */
     public ResultMap addResultMap(
             String id,
             Class<?> type,
@@ -182,7 +187,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
             Discriminator discriminator,
             List<ResultMapping> resultMappings,
             Boolean autoMapping) {
+
+        // ResultMap 的完整id是 namespace.id  的格式
         id = applyCurrentNamespace(id, false);
+        // 获取被继承的ResultMap的完整id，也就是父ResultMap对象的完整id
         extend = applyCurrentNamespace(extend, true);
 
         if (extend != null) {
@@ -190,9 +198,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
             }
             ResultMap resultMap = configuration.getResultMap(extend);
-            List<ResultMapping> extendedResultMappings = new ArrayList<ResultMapping>(resultMap.getResultMappings());
+            // 获取父 ResultMap 对象中记录的 ResultMapping 集合
+            List<ResultMapping> extendedResultMappings = new ArrayList<>(resultMap.getResultMappings());
+            // 删除需要覆盖的 ResultMapping 集合
             extendedResultMappings.removeAll(resultMappings);
             // Remove parent constructor if this resultMap declares a constructor.
+            // 如采当前resultMap节点中定义了constructor节点，则不需要使用父ResultMap中记录的相应constructor节点，
+            // 则将其对应的 ResultMapping 对象删除
             boolean declaresConstructor = false;
             for (ResultMapping resultMapping : resultMappings) {
                 if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
@@ -208,12 +220,17 @@ public class MapperBuilderAssistant extends BaseBuilder {
                     }
                 }
             }
+            // 添加需要被继承下来的 ResultMapping 对象集合
             resultMappings.addAll(extendedResultMappings);
         }
-        ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
+
+        // 创建 ResultMap 对象， 并添加到 Configuration.resultMaps 集合中保存
+        ResultMap resultMap = new ResultMap
+                .Builder(configuration, id, type, resultMappings, autoMapping)
                 .discriminator(discriminator)
                 .build();
         configuration.addResultMap(resultMap);
+
         return resultMap;
     }
 
@@ -224,6 +241,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
             JdbcType jdbcType,
             Class<? extends TypeHandler<?>> typeHandler,
             Map<String, String> discriminatorMap) {
+
         ResultMapping resultMapping = buildResultMapping(
                 resultType,
                 null,
@@ -235,16 +253,19 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 null,
                 null,
                 typeHandler,
-                new ArrayList<ResultFlag>(),
+                new ArrayList<>(),
                 null,
                 null,
                 false);
-        Map<String, String> namespaceDiscriminatorMap = new HashMap<String, String>();
+
+        Map<String, String> namespaceDiscriminatorMap = new HashMap<>();
+
         for (Map.Entry<String, String> e : discriminatorMap.entrySet()) {
             String resultMap = e.getValue();
             resultMap = applyCurrentNamespace(resultMap, true);
             namespaceDiscriminatorMap.put(e.getKey(), resultMap);
         }
+
         return new Discriminator.Builder(configuration, resultMapping, namespaceDiscriminatorMap).build();
     }
 
@@ -322,7 +343,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 throw new IncompleteElementException("Could not find parameter map " + parameterMapName, e);
             }
         } else if (parameterTypeClass != null) {
-            List<ParameterMapping> parameterMappings = new ArrayList<ParameterMapping>();
+            List<ParameterMapping> parameterMappings = new ArrayList<>();
             parameterMap = new ParameterMap.Builder(
                     configuration,
                     statementId + "-Inline",
@@ -338,7 +359,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
             String statementId) {
         resultMap = applyCurrentNamespace(resultMap, true);
 
-        List<ResultMap> resultMaps = new ArrayList<ResultMap>();
+        List<ResultMap> resultMaps = new ArrayList<>();
         if (resultMap != null) {
             String[] resultMapNames = resultMap.split(",");
             for (String resultMapName : resultMapNames) {
@@ -353,7 +374,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
                     configuration,
                     statementId + "-Inline",
                     resultType,
-                    new ArrayList<ResultMapping>(),
+                    new ArrayList<>(),
                     null).build();
             resultMaps.add(inlineResultMap);
         }
@@ -375,16 +396,25 @@ public class MapperBuilderAssistant extends BaseBuilder {
             String resultSet,
             String foreignColumn,
             boolean lazy) {
+
+        // 解析resultType节点指定的 property 属性的类型
         Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
+
+        // 获取 typeHandler 指定的 TypeHandler 对象，底层依赖于 typeHandlerRegistry
         TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
+
+        // 解析 column 属性值，当 column 是｛ propl=coll , prop2=col2 ｝形式时， 会解析成 ResultMapping对象集合
+        // column 的这种形式主要用于嵌套查询的参数传递
         List<ResultMapping> composites = parseCompositeColumnName(column);
+
+        // 创建 ResultMapping 对象，并设置字段
         return new ResultMapping.Builder(configuration, property, column, javaTypeClass)
                 .jdbcType(jdbcType)
                 .nestedQueryId(applyCurrentNamespace(nestedSelect, true))
                 .nestedResultMapId(applyCurrentNamespace(nestedResultMap, true))
                 .resultSet(resultSet)
                 .typeHandler(typeHandlerInstance)
-                .flags(flags == null ? new ArrayList<ResultFlag>() : flags)
+                .flags(flags == null ? new ArrayList<>() : flags)
                 .composites(composites)
                 .notNullColumns(parseMultipleColumnNames(notNullColumn))
                 .columnPrefix(columnPrefix)
@@ -394,7 +424,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     private Set<String> parseMultipleColumnNames(String columnName) {
-        Set<String> columns = new HashSet<String>();
+        Set<String> columns = new HashSet<>();
         if (columnName != null) {
             if (columnName.indexOf(',') > -1) {
                 StringTokenizer parser = new StringTokenizer(columnName, "{}, ", false);
@@ -410,7 +440,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     private List<ResultMapping> parseCompositeColumnName(String columnName) {
-        List<ResultMapping> composites = new ArrayList<ResultMapping>();
+        List<ResultMapping> composites = new ArrayList<>();
         if (columnName != null && (columnName.indexOf('=') > -1 || columnName.indexOf(',') > -1)) {
             StringTokenizer parser = new StringTokenizer(columnName, "{}=, ", false);
             while (parser.hasMoreTokens()) {
@@ -508,11 +538,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
             String keyColumn,
             String databaseId,
             LanguageDriver lang) {
+
         return addMappedStatement(
                 id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
                 parameterMap, parameterType, resultMap, resultType, resultSetType,
                 flushCache, useCache, resultOrdered, keyGenerator, keyProperty,
                 keyColumn, databaseId, lang, null);
     }
+
 
 }

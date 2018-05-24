@@ -23,7 +23,7 @@ import org.apache.ibatis.scripting.ScriptingException;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 
 /**
- * 文本节点信息
+ * 代表包含 ${} 占位符的动态SQL节点
  *
  * @author Clinton Begin
  */
@@ -41,6 +41,7 @@ public class TextSqlNode implements SqlNode {
         this.injectionFilter = injectionFilter;
     }
 
+    // 解析SQL语句，如采含有未解析的 ${} 占位符，则为动态 SQL
     public boolean isDynamic() {
         DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
         GenericTokenParser parser = createParser(checker);
@@ -59,6 +60,9 @@ public class TextSqlNode implements SqlNode {
         return new GenericTokenParser("${", "}", handler);
     }
 
+    /**
+     * 解析 ${} 占位符
+     */
     private static class BindingTokenParser implements TokenHandler {
 
         private DynamicContext context;
@@ -71,14 +75,19 @@ public class TextSqlNode implements SqlNode {
 
         @Override
         public String handleToken(String content) {
+            // 获取用户提供的实参
             Object parameter = context.getBindings().get("_parameter");
+
             if (parameter == null) {
                 context.getBindings().put("value", null);
             } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
                 context.getBindings().put("value", parameter);
             }
+
             Object value = OgnlCache.getValue(content, context.getBindings());
-            String srtValue = (value == null ? "" : String.valueOf(value)); // issue #274 return "" instead of "null"
+
+            // issue #274 return "" instead of "null"
+            String srtValue = (value == null ? "" : String.valueOf(value));
             checkInjection(srtValue);
             return srtValue;
         }

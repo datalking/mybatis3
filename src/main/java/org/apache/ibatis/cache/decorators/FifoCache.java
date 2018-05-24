@@ -30,7 +30,10 @@ import org.apache.ibatis.cache.Cache;
 public class FifoCache implements Cache {
 
     private final Cache delegate;
+
+    // 用于记录 key 进入缓存的先后顺序
     private Deque<Object> keyList;
+
     private int size;
 
     public FifoCache(Cache delegate) {

@@ -16,8 +16,8 @@
 package org.apache.ibatis.mapping;
 
 /**
- * 代表映射配置文件或注解中定义的sql语句
- * 可以是动态sql
+ * 代表sql映射配置文件或注解中定义的sql语句
+ * 此sql语句可以含有动态sql节点或占位符，不能被数据库直接执行
  * <p>
  * Represents the content of a mapped statement read from an XML file or an annotation.
  * It creates the SQL that will be passed to the database out of the input parameter received from the user.
@@ -26,7 +26,7 @@ package org.apache.ibatis.mapping;
  */
 public interface SqlSource {
 
-    // 根据传入的参数对象，动态计算出这个BoundSql
+    // 根据映射文件或注解描述的SQL语句以及输入参敛，返回 可执行的SQL
     BoundSql getBoundSql(Object parameterObject);
 
 }

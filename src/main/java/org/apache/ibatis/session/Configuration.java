@@ -91,7 +91,7 @@ import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * mybatis全局配置类
+ * mybatis全局唯一的配置类
  *
  * @author Clinton Begin
  */
@@ -144,11 +144,17 @@ public class Configuration {
      */
     protected Class<?> configurationFactory;
 
+    // mapper接口注册中心
     protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
-    protected final InterceptorChain interceptorChain = new InterceptorChain();
+    // 类型转换处理器注册中心
     protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+    // 类别名注册中心
     protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+    // 动态sql语言注册中心
     protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
+
+    // mybatis所有插件执行链
+    protected final InterceptorChain interceptorChain = new InterceptorChain();
 
     protected final Map<String, MappedStatement> mappedStatements = new StrictMap<>("Mapped Statements collection");
     protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");

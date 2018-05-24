@@ -31,6 +31,7 @@ import org.apache.ibatis.io.Resources;
 
 /**
  * 缓存装饰器 缓存序列化后的对象
+ * 使用的序列化方式是Java原生序列化
  *
  * @author Clinton Begin
  */
@@ -54,7 +55,9 @@ public class SerializedCache implements Cache {
 
     @Override
     public void putObject(Object key, Object object) {
+
         if (object == null || object instanceof Serializable) {
+
             delegate.putObject(key, serialize((Serializable) object));
         } else {
             throw new CacheException("SharedCache failed to make a copy of a non-serializable object: " + object);
@@ -92,6 +95,10 @@ public class SerializedCache implements Cache {
         return delegate.equals(obj);
     }
 
+    /**
+     * 序列化对象
+     * 使用的序列化方式是Java原生序列化
+     */
     private byte[] serialize(Serializable value) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();

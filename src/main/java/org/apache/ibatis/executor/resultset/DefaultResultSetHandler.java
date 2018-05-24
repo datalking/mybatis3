@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * resultSet默认处理器
+ * ResultSetHandler 默认实现类，唯一实现类
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -78,6 +78,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     private final MappedStatement mappedStatement;
     private final RowBounds rowBounds;
     private final ParameterHandler parameterHandler;
+    //指定用于处理结果集的 ResultHandler 对象
     private final ResultHandler<?> resultHandler;
     private final BoundSql boundSql;
     private final TypeHandlerRegistry typeHandlerRegistry;
@@ -85,16 +86,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     private final ReflectorFactory reflectorFactory;
 
     // nested resultmaps
-    private final Map<CacheKey, Object> nestedResultObjects = new HashMap<CacheKey, Object>();
-    private final Map<String, Object> ancestorObjects = new HashMap<String, Object>();
+    private final Map<CacheKey, Object> nestedResultObjects = new HashMap<>();
+    private final Map<String, Object> ancestorObjects = new HashMap<>();
     private Object previousRowValue;
 
     // multiple resultsets
-    private final Map<String, ResultMapping> nextResultMaps = new HashMap<String, ResultMapping>();
-    private final Map<CacheKey, List<PendingRelation>> pendingRelations = new HashMap<CacheKey, List<PendingRelation>>();
+    private final Map<String, ResultMapping> nextResultMaps = new HashMap<>();
+    private final Map<CacheKey, List<PendingRelation>> pendingRelations = new HashMap<>();
 
     // Cached Automappings
-    private final Map<String, List<UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<String, List<UnMappedColumnAutoMapping>>();
+    private final Map<String, List<UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<>();
 
     // temporary marking flag that indicate using constructor mapping (use field to reduce memory usage)
     private boolean useConstructorMappings;

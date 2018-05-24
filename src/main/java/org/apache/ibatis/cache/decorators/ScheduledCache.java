@@ -27,7 +27,11 @@ import org.apache.ibatis.cache.Cache;
 public class ScheduledCache implements Cache {
 
     private Cache delegate;
+
+    // 记录两次缓存清理之间的时间间隔，默认是一小时，
     protected long clearInterval;
+
+    // 记录最近一次清理的时间戳
     protected long lastClear;
 
     public ScheduledCache(Cache delegate) {

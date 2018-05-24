@@ -28,7 +28,9 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
- * 调用mapper代理对象的方法
+ * 调用mapper代理对象实际执行的方法
+ * <p>
+ * 实现了jdk动态代理的InvocationHandler
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -36,6 +38,7 @@ import org.apache.ibatis.session.SqlSession;
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     private static final long serialVersionUID = -6424540398559729838L;
+
     private final SqlSession sqlSession;
     private final Class<T> mapperInterface;
     private final Map<Method, MapperMethod> methodCache;
@@ -49,15 +52,22 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            // 若目标方法继承自Object，则直接调用目标方法
             if (Object.class.equals(method.getDeclaringClass())) {
                 return method.invoke(this, args);
+
             } else if (isDefaultMethod(method)) {
+
+                // 针对 Java7 以上版本对动态类型语言的支持
                 return invokeDefaultMethod(proxy, method, args);
             }
         } catch (Throwable t) {
             throw ExceptionUtil.unwrapThrowable(t);
         }
+        // 添加到缓存
         final MapperMethod mapperMethod = cachedMapperMethod(method);
+
+        // 执行sql语句
         return mapperMethod.execute(sqlSession, args);
     }
 
@@ -71,13 +81,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     }
 
     @UsesJava7
-    private Object invokeDefaultMethod(Object proxy, Method method, Object[] args)
-            throws Throwable {
-        final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
-                .getDeclaredConstructor(Class.class, int.class);
+    private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
+
+        final Constructor<MethodHandles.Lookup> constructor =
+                MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+
         if (!constructor.isAccessible()) {
             constructor.setAccessible(true);
         }
+
         final Class<?> declaringClass = method.getDeclaringClass();
         return constructor
                 .newInstance(declaringClass,
@@ -90,8 +102,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
      * Backport of java.lang.reflect.Method#isDefault()
      */
     private boolean isDefaultMethod(Method method) {
-        return ((method.getModifiers()
-                & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC)
+        return ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC)
                 && method.getDeclaringClass().isInterface();
     }
 

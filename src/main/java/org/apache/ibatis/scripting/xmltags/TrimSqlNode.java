@@ -61,9 +61,13 @@ public class TrimSqlNode implements SqlNode {
 
     private static List<String> parseOverrides(String overrides) {
         if (overrides != null) {
+
+            // 按照 | 分割
             final StringTokenizer parser = new StringTokenizer(overrides, "|", false);
-            final List<String> list = new ArrayList<String>(parser.countTokens());
+            final List<String> list = new ArrayList<>(parser.countTokens());
+
             while (parser.hasMoreTokens()) {
+                // 转换成大写
                 list.add(parser.nextToken().toUpperCase(Locale.ENGLISH));
             }
             return list;
@@ -71,6 +75,9 @@ public class TrimSqlNode implements SqlNode {
         return Collections.emptyList();
     }
 
+    /**
+     * 处理前后缀
+     */
     private class FilteredDynamicContext extends DynamicContext {
         private DynamicContext delegate;
         private boolean prefixApplied;
@@ -120,6 +127,7 @@ public class TrimSqlNode implements SqlNode {
             return delegate.getSql();
         }
 
+        // 处理前缀
         private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
             if (!prefixApplied) {
                 prefixApplied = true;
@@ -138,6 +146,7 @@ public class TrimSqlNode implements SqlNode {
             }
         }
 
+        // 处理后缀
         private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
             if (!suffixApplied) {
                 suffixApplied = true;

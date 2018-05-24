@@ -31,7 +31,10 @@ import org.apache.ibatis.cache.Cache;
  * @author Clinton Begin
  */
 public class SoftCache implements Cache {
+
     private final Deque<Object> hardLinksToAvoidGarbageCollection;
+
+    // 引用队列，用于记录已经被 GC 回收的缓存项所对应的 SoftEntry 对象
     private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
     private final Cache delegate;
     private int numberOfHardLinks;
@@ -39,8 +42,8 @@ public class SoftCache implements Cache {
     public SoftCache(Cache delegate) {
         this.delegate = delegate;
         this.numberOfHardLinks = 256;
-        this.hardLinksToAvoidGarbageCollection = new LinkedList<Object>();
-        this.queueOfGarbageCollectedEntries = new ReferenceQueue<Object>();
+        this.hardLinksToAvoidGarbageCollection = new LinkedList<>();
+        this.queueOfGarbageCollectedEntries = new ReferenceQueue<>();
     }
 
     @Override

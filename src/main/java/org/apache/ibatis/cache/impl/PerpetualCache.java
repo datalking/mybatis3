@@ -23,14 +23,19 @@ import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheException;
 
 /**
- * 缓存默认实现类
+ * 缓存 默认实现类
+ * 基于HashMap实现
  *
  * @author Clinton Begin
  */
 public class PerpetualCache implements Cache {
 
+    // Cache 对象的唯一标识
     private String id;
 
+    /**
+     * 存放缓存对象的map
+     */
     private Map<Object, Object> cache = new HashMap<>();
 
     public PerpetualCache(String id) {
@@ -74,6 +79,7 @@ public class PerpetualCache implements Cache {
 
     @Override
     public boolean equals(Object o) {
+
         if (getId() == null) {
             throw new CacheException("Cache instances require an ID.");
         }
@@ -85,14 +91,17 @@ public class PerpetualCache implements Cache {
         }
 
         Cache otherCache = (Cache) o;
+
         return getId().equals(otherCache.getId());
     }
 
     @Override
     public int hashCode() {
+
         if (getId() == null) {
             throw new CacheException("Cache instances require an ID.");
         }
+
         return getId().hashCode();
     }
 

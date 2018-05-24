@@ -29,13 +29,16 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * 参数名解析器
+ * mapper接口方法的参数名解析
  */
 public class ParamNameResolver {
 
     private static final String GENERIC_NAME_PREFIX = "param";
 
     /**
+     * 记录方法参数列表中参数的位置索引和参数名称的映射
+     * 参数名称可以通过@Param注解指定，若未显式指定，则使用位置索引arg1
+     * RowBounds和ResultHandler类型的参数不会被记录
      * <p>
      * The key is the index and the value is the name of the parameter.<br />
      * The name is obtained from {@link Param} if specified. When {@link Param} is not specified,
@@ -53,40 +56,54 @@ public class ParamNameResolver {
     private boolean hasParamAnnotation;
 
     public ParamNameResolver(Configuration config, Method method) {
+        // 获取参数列表中每个参数的类型
         final Class<?>[] paramTypes = method.getParameterTypes();
+        // 获取参数列表上的注解
         final Annotation[][] paramAnnotations = method.getParameterAnnotations();
-        final SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+        // 记录参数索引与参数名称的对应关系
+        final SortedMap<Integer, String> map = new TreeMap<>();
         int paramCount = paramAnnotations.length;
+
         // get names from @Param annotations
         for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+
+            /// 如采参数是 RowBounds 类型或 ResultHandler 类型，则跳过对该参数的分析
             if (isSpecialParameter(paramTypes[paramIndex])) {
                 // skip special parameters
                 continue;
             }
+
             String name = null;
+            /// 遥历该参数对应的注解集合
             for (Annotation annotation : paramAnnotations[paramIndex]) {
+                // @Param出现过一次，就将 hasParamAnnotation 初始化为 true
                 if (annotation instanceof Param) {
                     hasParamAnnotation = true;
                     name = ((Param) annotation).value();
                     break;
                 }
             }
+
             if (name == null) {
-                // @Param was not specified.
+
+                // 若没有@Param，则根据配置决定是否使用参数实际名称作为其名称
                 if (config.isUseActualParamName()) {
                     name = getActualParamName(method, paramIndex);
                 }
+
+                // 使用参数的索引作为其名称
                 if (name == null) {
-                    // use the parameter index as the name ("0", "1", ...)
-                    // gcode issue #71
+                    // use the parameter index as the name ("0", "1", ...), gcode issue #71
                     name = String.valueOf(map.size());
                 }
             }
             map.put(paramIndex, name);
         }
+
         names = Collections.unmodifiableSortedMap(map);
     }
 
+    // 获取方法实际参数名，默认为arg1,arg2,...
     private String getActualParamName(Method method, int paramIndex) {
         if (Jdk.parameterExists) {
             return ParamNameUtil.getParamNames(method).get(paramIndex);
@@ -94,6 +111,7 @@ public class ParamNameResolver {
         return null;
     }
 
+    // 过滤 RowBounds 和 ResultHandler 两种类型的参数
     private static boolean isSpecialParameter(Class<?> clazz) {
         return RowBounds.class.isAssignableFrom(clazz) || ResultHandler.class.isAssignableFrom(clazz);
     }
@@ -106,6 +124,7 @@ public class ParamNameResolver {
     }
 
     /**
+     * 接收用户传入的实参列表，并将实参与其对应名称进行关联
      * <p>
      * A single non-special parameter is returned without a name.<br />
      * Multiple parameters are named using the naming rule.<br />
@@ -115,23 +134,36 @@ public class ParamNameResolver {
      */
     public Object getNamedParams(Object[] args) {
         final int paramCount = names.size();
+
+        /// 若未传入无参数
         if (args == null || paramCount == 0) {
             return null;
-        } else if (!hasParamAnnotation && paramCount == 1) {
+        }
+        /// 若未使用 @Param 且只有一个参数
+        else if (!hasParamAnnotation && paramCount == 1) {
             return args[names.firstKey()];
-        } else {
-            final Map<String, Object> param = new ParamMap<Object>();
+        }
+        /// 使用 @Param 指定了参数名称或有多个参数的情况
+        else {
+            // 记录参数名称与实参之间的对应关系
+            final Map<String, Object> param = new ParamMap<>();
             int i = 0;
+
             for (Map.Entry<Integer, String> entry : names.entrySet()) {
+
+                // 将参数名与实参对应关系记录到 param 中
                 param.put(entry.getValue(), args[entry.getKey()]);
+
                 // add generic param names (param1, param2, ...)
                 final String genericParamName = GENERIC_NAME_PREFIX + String.valueOf(i + 1);
-                // ensure not to overwrite parameter named with @Param
+
+                // 添加其余参数的默认参数名时，不会覆盖@Param已经指定的 ensure not to overwrite parameter named with @Param
                 if (!names.containsValue(genericParamName)) {
                     param.put(genericParamName, args[entry.getKey()]);
                 }
                 i++;
             }
+
             return param;
         }
     }

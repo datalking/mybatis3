@@ -29,12 +29,14 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * 表示XML文件中一个sql语句节点，即一个<select />、<update />或者<insert />标签
+ * 代表xml映射配置文件中定义的sql节点
+ * 即一个<select />、<update />或者<insert />标签，封装了sql语句相关的信息
  *
  * @author Clinton Begin
  */
 public final class MappedStatement {
 
+    // 节点的 id 属性，包括命名空间前缀
     private String resource;
     private Configuration configuration;
     private String id;
@@ -42,14 +44,18 @@ public final class MappedStatement {
     private Integer timeout;
     private StatementType statementType;
     private ResultSetType resultSetType;
+
+    // SqlSource对象，对应一条 SQL语句
     private SqlSource sqlSource;
+    // sql语句类型
+    private SqlCommandType sqlCommandType;
+
     private Cache cache;
     private ParameterMap parameterMap;
     private List<ResultMap> resultMaps;
     private boolean flushCacheRequired;
     private boolean useCache;
     private boolean resultOrdered;
-    private SqlCommandType sqlCommandType;
     private KeyGenerator keyGenerator;
     private String[] keyProperties;
     private String[] keyColumns;

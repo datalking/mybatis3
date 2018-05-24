@@ -41,7 +41,9 @@ import org.apache.ibatis.session.Configuration;
 public class XMLStatementBuilder extends BaseBuilder {
 
     private MapperBuilderAssistant builderAssistant;
+
     private XNode context;
+
     private String requiredDatabaseId;
 
     public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context) {
@@ -55,10 +57,15 @@ public class XMLStatementBuilder extends BaseBuilder {
         this.requiredDatabaseId = databaseId;
     }
 
+    /**
+     * 解析sql节点的入口
+     */
     public void parseStatementNode() {
+
+        // 获取 SQL 节点的 id 以及 databaseId 属性，若其databaseId属性值与当前使用的数据库不匹配，则不加载该SQL节点
+        // 若存在相同id且databaseId不为空的 SQL 节点，则不再加载该SQL节点
         String id = context.getStringAttribute("id");
         String databaseId = context.getStringAttribute("databaseId");
-
         if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
             return;
         }
@@ -79,26 +86,35 @@ public class XMLStatementBuilder extends BaseBuilder {
         ResultSetType resultSetTypeEnum = resolveResultSetType(resultSetType);
 
         String nodeName = context.getNode().getNodeName();
+        // 根据SQL节点的名称决定其SqlCommandType
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
+
         boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
         boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
         boolean useCache = context.getBooleanAttribute("useCache", isSelect);
         boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
-        // Include Fragments before parsing
+        // 在解析SQL语句之前，先处理其中的include节点. Include Fragments before parsing
         XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
         includeParser.applyIncludes(context.getNode());
 
-        // Parse selectKey after includes and remove them.
+        // 处理selectKey节点. Parse selectKey after includes and remove them.
         processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
         // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
         SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
+
+        /// 获取 resultSets 、 resultSets 、 keyColumn 三个属性
         String resultSets = context.getStringAttribute("resultSets");
         String keyProperty = context.getStringAttribute("keyProperty");
         String keyColumn = context.getStringAttribute("keyColumn");
+
         KeyGenerator keyGenerator;
+        // 获取<selectKey>节点对应的 SelectKeyGenerator 的 id
         String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
+
+        /// 检测SQL节点中是否配置了<selectKey>节点、 SQL节点的 useGeneratedKeys 属性、
+        // 以及mybatis-config.xml中全局的 useGeneratedKeys 配置，以及是否为insert语句，决定使用的KeyGenerator接口实现
         keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
         if (configuration.hasKeyGenerator(keyStatementId)) {
             keyGenerator = configuration.getKeyGenerator(keyStatementId);
@@ -108,12 +124,17 @@ public class XMLStatementBuilder extends BaseBuilder {
                     ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
         }
 
+
+        // 创建 MappedStatement 对象，并添加到 Configuration.mappedStatements 集合
         builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
                 fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
                 resultSetTypeEnum, flushCache, useCache, resultOrdered,
                 keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
     }
 
+    /**
+     * 解析<selectKey>节点
+     */
     private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
         List<XNode> selectKeyNodes = context.evalNodes("selectKey");
         if (configuration.getDatabaseId() != null) {
@@ -127,13 +148,20 @@ public class XMLStatementBuilder extends BaseBuilder {
         for (XNode nodeToHandle : list) {
             String id = parentId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
             String databaseId = nodeToHandle.getStringAttribute("databaseId");
+
             if (databaseIdMatchesCurrent(id, databaseId, skRequiredDatabaseId)) {
+
                 parseSelectKeyNode(id, nodeToHandle, parameterTypeClass, langDriver, databaseId);
             }
         }
     }
 
-    private void parseSelectKeyNode(String id, XNode nodeToHandle, Class<?> parameterTypeClass, LanguageDriver langDriver, String databaseId) {
+    private void parseSelectKeyNode(String id,
+                                    XNode nodeToHandle,
+                                    Class<?> parameterTypeClass,
+                                    LanguageDriver langDriver,
+                                    String databaseId) {
+
         String resultType = nodeToHandle.getStringAttribute("resultType");
         Class<?> resultTypeClass = resolveClass(resultType);
         StatementType statementType = StatementType.valueOf(nodeToHandle.getStringAttribute("statementType", StatementType.PREPARED.toString()));
@@ -152,7 +180,9 @@ public class XMLStatementBuilder extends BaseBuilder {
         String resultMap = null;
         ResultSetType resultSetTypeEnum = null;
 
+        // 生成 SqlSource
         SqlSource sqlSource = langDriver.createSqlSource(configuration, nodeToHandle, parameterTypeClass);
+        //<selectKey>节点中只能配置 select 语句
         SqlCommandType sqlCommandType = SqlCommandType.SELECT;
 
         builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
@@ -163,6 +193,8 @@ public class XMLStatementBuilder extends BaseBuilder {
         id = builderAssistant.applyCurrentNamespace(id, false);
 
         MappedStatement keyStatement = configuration.getMappedStatement(id, false);
+
+        // 创建<selectKey>节点对应的 KeyGenerator ，添加到 Configuration.keyGenerators 集合
         configuration.addKeyGenerator(id, new SelectKeyGenerator(keyStatement, executeBefore));
     }
 

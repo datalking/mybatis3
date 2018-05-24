@@ -17,10 +17,12 @@ package org.apache.ibatis.mapping;
 
 /**
  * mybatis支持的sql语句类型 枚举类
+ * 6种
  *
  * @author Clinton Begin
  */
 public enum SqlCommandType {
 
     UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH;
+
 }

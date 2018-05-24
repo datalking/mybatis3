@@ -16,12 +16,14 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
- * 动态sql节点 接口
+ * sql节点 接口
+ * 包括动态sql节点、文本节点
  *
  * @author Clinton Begin
  */
 public interface SqlNode {
 
+    // 根据用户传入的实参，参数解析该 SqlNode 所记录的动态SQL节点
     boolean apply(DynamicContext context);
 
 }

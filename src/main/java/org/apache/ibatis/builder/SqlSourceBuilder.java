@@ -41,17 +41,33 @@ public class SqlSourceBuilder extends BaseBuilder {
         super(configuration);
     }
 
+    /**
+     * 解析动态sql
+     *
+     * @param originalSql          经过SqlNode.apply()方法处理之后的SQL语句
+     * @param parameterType        用户传入的实参类型
+     * @param additionalParameters 形参与实参的对应关系，其实是经过SqlNode.apply()方法处理后的DynamicContext.bindings集合
+     * @return sqlSource
+     */
     public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
+
+        // 用于解析 #{}
         ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
+        // 配合解析 #{}
         GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
         String sql = parser.parse(originalSql);
+
+        // 创建StaticSqlSource，其中封装了占位符被替换成 ? 的SQL语句以及参数对应的ParameterMapping集合
         return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
     }
 
     private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
-        private List<ParameterMapping> parameterMappings = new ArrayList<ParameterMapping>();
+        // 用于记录解析得到的ParameterMapping集合
+        private List<ParameterMapping> parameterMappings = new ArrayList<>();
+        // 参数类型
         private Class<?> parameterType;
+        // DynamicContext.bindings 集合对应的 MetaObject 对象
         private MetaObject metaParameters;
 
         public ParameterMappingTokenHandler(Configuration configuration,
@@ -66,13 +82,18 @@ public class SqlSourceBuilder extends BaseBuilder {
             return parameterMappings;
         }
 
+        // 解析参数属性
         @Override
         public String handleToken(String content) {
             parameterMappings.add(buildParameterMapping(content));
             return "?";
         }
 
+        /**
+         * 解析参数
+         */
         private ParameterMapping buildParameterMapping(String content) {
+            // 解析参数的属性到map中
             Map<String, String> propertiesMap = parseParameterMapping(content);
             String property = propertiesMap.get("property");
             Class<?> propertyType;
@@ -92,7 +113,9 @@ public class SqlSourceBuilder extends BaseBuilder {
             } else {
                 propertyType = Object.class;
             }
+
             ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
+
             Class<?> javaType = propertyType;
             String typeHandlerAlias = null;
             for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
@@ -124,6 +147,7 @@ public class SqlSourceBuilder extends BaseBuilder {
             if (typeHandlerAlias != null) {
                 builder.typeHandler(resolveTypeHandler(javaType, typeHandlerAlias));
             }
+
             return builder.build();
         }
 

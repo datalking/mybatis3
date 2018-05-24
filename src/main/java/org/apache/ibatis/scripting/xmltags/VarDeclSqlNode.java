@@ -17,12 +17,16 @@ package org.apache.ibatis.scripting.xmltags;
 
 /**
  * bind节点信息
+ * 从OGNL表达式中创建一个变量并将其记录到上下文中
  *
  * @author Frank D. Martinez [mnesarco]
  */
 public class VarDeclSqlNode implements SqlNode {
 
+    // 记录<bind>节点的 name 属性值
     private final String name;
+
+    // 记录<bind>节点的 value 属性值
     private final String expression;
 
     public VarDeclSqlNode(String var, String exp) {

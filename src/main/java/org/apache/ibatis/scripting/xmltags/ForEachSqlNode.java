@@ -29,14 +29,21 @@ import org.apache.ibatis.session.Configuration;
 public class ForEachSqlNode implements SqlNode {
     public static final String ITEM_PREFIX = "__frch_";
 
+    // 用于判断循环的终止条件
     private ExpressionEvaluator evaluator;
+    // 迭代的集合表达式
     private String collectionExpression;
+    // 记录了该 ForeachSqlNode 节点的子节点
     private SqlNode contents;
+    // 在循环开始前要添加的字符串
     private String open;
+    // 在循环结束后要添加的字符串
     private String close;
+    // 循环过程中，每项之间的分隔符
     private String separator;
-    private String item;
+    // index是当前迭代的次数，item的值是本次选代的元素，若迭代集合是Map，则index是键，item是值
     private String index;
+    private String item;
     private Configuration configuration;
 
     public ForEachSqlNode(Configuration configuration, SqlNode contents, String collectionExpression, String index, String item, String open, String close, String separator) {
@@ -177,7 +184,9 @@ public class ForEachSqlNode implements SqlNode {
 
     private class PrefixedContext extends DynamicContext {
         private DynamicContext delegate;
+        // 指定的前缀
         private String prefix;
+        // 是否已经处理过前缀
         private boolean prefixApplied;
 
         public PrefixedContext(DynamicContext delegate, String prefix) {

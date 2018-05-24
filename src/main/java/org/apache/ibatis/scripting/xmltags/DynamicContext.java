@@ -27,7 +27,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * 使用Ognl来计算动态sql语句
+ * 记录动态SQL语句解析结果的容器
  *
  * @author Clinton Begin
  */
@@ -40,17 +40,24 @@ public class DynamicContext {
         OgnlRuntime.setPropertyAccessor(ContextMap.class, new ContextAccessor());
     }
 
+    // sql参数上下文属性map，内部类
     private final ContextMap bindings;
+
+    // 将解析后的SQL语句片段添加到该属性中保存，最终拼凑出一条完成的SQL语句
     private final StringBuilder sqlBuilder = new StringBuilder();
+
     private int uniqueNumber = 0;
 
     public DynamicContext(Configuration configuration, Object parameterObject) {
+
         if (parameterObject != null && !(parameterObject instanceof Map)) {
+            /// 对于非Map类型的参数，会创建对应的 MetaObject 对象，并封装成 ContextMap 对象
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
             bindings = new ContextMap(metaObject);
         } else {
             bindings = new ContextMap(null);
         }
+
         bindings.put(PARAMETER_OBJECT_KEY, parameterObject);
         bindings.put(DATABASE_ID_KEY, configuration.getDatabaseId());
     }
@@ -68,6 +75,7 @@ public class DynamicContext {
         sqlBuilder.append(" ");
     }
 
+    // 获取解析后的、完整的SQL语句
     public String getSql() {
         return sqlBuilder.toString().trim();
     }
@@ -76,9 +84,13 @@ public class DynamicContext {
         return uniqueNumber++;
     }
 
+    /**
+     * 参数上下文，继承自HashMap
+     */
     static class ContextMap extends HashMap<String, Object> {
         private static final long serialVersionUID = 2977601501966151582L;
 
+        // 将用户传入的参数封装成了MetaObject对象
         private MetaObject parameterMetaObject;
 
         public ContextMap(MetaObject parameterMetaObject) {
@@ -88,6 +100,7 @@ public class DynamicContext {
         @Override
         public Object get(Object key) {
             String strKey = (String) key;
+
             if (super.containsKey(strKey)) {
                 return super.get(strKey);
             }
@@ -104,8 +117,7 @@ public class DynamicContext {
     static class ContextAccessor implements PropertyAccessor {
 
         @Override
-        public Object getProperty(Map context, Object target, Object name)
-                throws OgnlException {
+        public Object getProperty(Map context, Object target, Object name) throws OgnlException {
             Map map = (Map) target;
 
             Object result = map.get(name);

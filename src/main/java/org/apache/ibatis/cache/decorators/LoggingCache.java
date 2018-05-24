@@ -30,7 +30,11 @@ public class LoggingCache implements Cache {
 
     private Log log;
     private Cache delegate;
+
+    // Cache的访问次数
     protected int requests = 0;
+
+    // Cache的命中次数
     protected int hits = 0;
 
     public LoggingCache(Cache delegate) {

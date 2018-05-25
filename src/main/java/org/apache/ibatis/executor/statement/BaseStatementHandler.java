@@ -35,6 +35,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * sql处理器 抽象类
+ * 只提供参数绑定相关的方法，并没有提供操作数据库的方法
  *
  * @author Clinton Begin
  */
@@ -43,16 +44,26 @@ public abstract class BaseStatementHandler implements StatementHandler {
     protected final Configuration configuration;
     protected final ObjectFactory objectFactory;
     protected final TypeHandlerRegistry typeHandlerRegistry;
+
+    // 将结果集映射成结果对象
     protected final ResultSetHandler resultSetHandler;
+
+    // 用于为SQL语句绑定实参，使用传入的实参替换SQL语句的中 ? 占位符
     protected final ParameterHandler parameterHandler;
 
     protected final Executor executor;
+
     protected final MappedStatement mappedStatement;
+    protected BoundSql boundSql;
     protected final RowBounds rowBounds;
 
-    protected BoundSql boundSql;
+    protected BaseStatementHandler(Executor executor,
+                                   MappedStatement mappedStatement,
+                                   Object parameterObject,
+                                   RowBounds rowBounds,
+                                   ResultHandler resultHandler,
+                                   BoundSql boundSql) {
 
-    protected BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         this.configuration = mappedStatement.getConfiguration();
         this.executor = executor;
         this.mappedStatement = mappedStatement;
@@ -62,7 +73,10 @@ public abstract class BaseStatementHandler implements StatementHandler {
         this.objectFactory = configuration.getObjectFactory();
 
         if (boundSql == null) { // issue #435, get the key before calculating the statement
+
+            // 先计算主键
             generateKeys(parameterObject);
+
             boundSql = mappedStatement.getBoundSql(parameterObject);
         }
 

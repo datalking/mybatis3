@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * ResultSetHandler 默认实现类，唯一实现类
+ * ResultSetHandler 唯一默认实现类
  *
  * @author Clinton Begin
  * @author Eduardo Macarron

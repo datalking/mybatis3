@@ -215,7 +215,9 @@ public class XMLConfigBuilder extends BaseBuilder {
 
                 // 创建插件对象
                 Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
+                // 设置属性
                 interceptorInstance.setProperties(properties);
+                // 添加到 Configuration.interceptorChain
                 configuration.addInterceptor(interceptorInstance);
             }
         }

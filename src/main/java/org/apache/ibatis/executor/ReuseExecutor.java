@@ -86,16 +86,22 @@ public class ReuseExecutor extends BaseExecutor {
         BoundSql boundSql = handler.getBoundSql();
         String sql = boundSql.getSql();
 
+        /// 检测是否缓存了相同模式的SQL语句所对应的Statement对象
         if (hasStatementFor(sql)) {
             // 先尝试从缓存中获取statement对象
             stmt = getStatement(sql);
             applyTransactionTimeout(stmt);
         } else {
             Connection connection = getConnection(statementLog);
+
+            /// 创建新的 Statement 对象，并缓存到 staternentMap 集合中
             stmt = handler.prepare(connection, transaction.getTimeout());
             putStatement(sql, stmt);
         }
+
+        // 处理占位符
         handler.parameterize(stmt);
+
         return stmt;
     }
 

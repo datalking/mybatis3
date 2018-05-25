@@ -49,10 +49,17 @@ import org.apache.ibatis.session.SqlSession;
 public class DefaultSqlSession implements SqlSession {
 
     private Configuration configuration;
+
+    // 所有数据库相关的操作全部封装到Executor接口实现中
     private Executor executor;
 
+    // 是否自动提交事务
     private boolean autoCommit;
+
+    // 当前缓存中是否有脏数据
     private boolean dirty;
+
+    // 为防止忘记关闭已打开的游标对象，会通过cursorList字段记录由该SqlSession对象生成的游标对象，在close()中会统一关闭
     private List<Cursor<?>> cursorList;
 
     public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
@@ -68,13 +75,14 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T selectOne(String statement) {
-        return this.<T>selectOne(statement, null);
+        return this.selectOne(statement, null);
     }
 
+    // 返回结果对象集合的第一个元素
     @Override
     public <T> T selectOne(String statement, Object parameter) {
         // Popular vote was to return null on 0 results and throw exception on too many.
-        List<T> list = this.<T>selectList(statement, parameter);
+        List<T> list = this.selectList(statement, parameter);
         if (list.size() == 1) {
             return list.get(0);
         } else if (list.size() > 1) {
@@ -97,9 +105,9 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
         final List<? extends V> list = selectList(statement, parameter, rowBounds);
-        final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<K, V>(mapKey,
+        final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<>(mapKey,
                 configuration.getObjectFactory(), configuration.getObjectWrapperFactory(), configuration.getReflectorFactory());
-        final DefaultResultContext<V> context = new DefaultResultContext<V>();
+        final DefaultResultContext<V> context = new DefaultResultContext<>();
         for (V o : list) {
             context.nextResultObject(o);
             mapResultHandler.handleResult(context);
@@ -190,6 +198,9 @@ public class DefaultSqlSession implements SqlSession {
         return update(statement, null);
     }
 
+    /**
+     * 执行 insert、delete、update
+     */
     @Override
     public int update(String statement, Object parameter) {
         try {
@@ -289,7 +300,7 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T getMapper(Class<T> type) {
-        return configuration.<T>getMapper(type, this);
+        return configuration.getMapper(type, this);
     }
 
     @Override
@@ -308,7 +319,7 @@ public class DefaultSqlSession implements SqlSession {
 
     private <T> void registerCursor(Cursor<T> cursor) {
         if (cursorList == null) {
-            cursorList = new ArrayList<Cursor<?>>();
+            cursorList = new ArrayList<>();
         }
         cursorList.add(cursor);
     }
@@ -319,14 +330,14 @@ public class DefaultSqlSession implements SqlSession {
 
     private Object wrapCollection(final Object object) {
         if (object instanceof Collection) {
-            StrictMap<Object> map = new StrictMap<Object>();
+            StrictMap<Object> map = new StrictMap<>();
             map.put("collection", object);
             if (object instanceof List) {
                 map.put("list", object);
             }
             return map;
         } else if (object != null && object.getClass().isArray()) {
-            StrictMap<Object> map = new StrictMap<Object>();
+            StrictMap<Object> map = new StrictMap<>();
             map.put("array", object);
             return map;
         }

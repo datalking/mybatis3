@@ -41,6 +41,7 @@ public class DefaultCursor<T> implements Cursor<T> {
     private final DefaultResultSetHandler resultSetHandler;
     private final ResultMap resultMap;
     private final ResultSetWrapper rsw;
+
     // 指定对结果集进行映射的起止位置
     private final RowBounds rowBounds;
     // 用于暂存映射的结果对象
@@ -48,6 +49,7 @@ public class DefaultCursor<T> implements Cursor<T> {
 
     // 通过该迭代器获取映射得到的结果对象
     private final CursorIterator cursorIterator = new CursorIterator();
+
     // 标识是否正在迭代结果集
     private boolean iteratorRetrieved;
     // 记录已经完成映射的行数
@@ -128,11 +130,19 @@ public class DefaultCursor<T> implements Cursor<T> {
         }
     }
 
+    /**
+     * 将记录行映射成结果对象
+     */
     protected T fetchNextUsingRowBound() {
+
+        // 映射一行数据库记录，得到结果对象
         T result = fetchNextObjectFromDatabase();
+
+        // 从结果集开始一条条记录映射，但是将RowBounds.offset之前的映射结果全部忽略
         while (result != null && indexWithRowBound < rowBounds.getOffset()) {
             result = fetchNextObjectFromDatabase();
         }
+
         return result;
     }
 
@@ -140,20 +150,26 @@ public class DefaultCursor<T> implements Cursor<T> {
         if (isClosed()) {
             return null;
         }
-
         try {
+            // 更新游标状态
             status = CursorStatus.OPEN;
+            // 将映射得到的结果对象保存到 ObjectWrapperResultHandler.result 字段中
             resultSetHandler.handleRowValues(rsw, resultMap, objectWrapperResultHandler, RowBounds.DEFAULT, null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
+        // 获取结果对象
         T next = objectWrapperResultHandler.result;
         if (next != null) {
+            // 统计返回的结果对象数量
             indexWithRowBound++;
         }
+
         // No more object or limit reached
+        // 检测是否还存在需映射的记录，如果没有，则关闭游标并修改状态
         if (next == null || (getReadItemsCount() == rowBounds.getOffset() + rowBounds.getLimit())) {
+            // 关闭结果集以及对应的Statement对象
             close();
             status = CursorStatus.CONSUMED;
         }

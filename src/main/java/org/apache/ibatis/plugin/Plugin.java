@@ -26,14 +26,17 @@ import java.util.Set;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
- * 插件定义
+ * 自定义插件的工具类
  *
  * @author Clinton Begin
  */
 public class Plugin implements InvocationHandler {
 
+    // 目标对象
     private Object target;
+    // 拦截对象
     private Interceptor interceptor;
+    // 记录@Signature注解中的信息
     private Map<Class<?>, Set<Method>> signatureMap;
 
     private Plugin(Object target, Interceptor interceptor, Map<Class<?>, Set<Method>> signatureMap) {
@@ -42,26 +45,45 @@ public class Plugin implements InvocationHandler {
         this.signatureMap = signatureMap;
     }
 
+    /**
+     * 创建代理对象的静态方法
+     */
     public static Object wrap(Object target, Interceptor interceptor) {
+
+        // 获取用户自定义Interceptor中@Signature注解的信息
         Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
+
+        // 获取目标类型
         Class<?> type = target.getClass();
+
+        // 获取目标类型实现的接口
         Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
+
         if (interfaces.length > 0) {
+            // 使用 JDK 动态代理的方式创建代理对象
             return Proxy.newProxyInstance(
                     type.getClassLoader(),
                     interfaces,
                     new Plugin(target, interceptor, signatureMap));
         }
+
         return target;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            // 获取当前方法所在类或接口中，可被当前Interceptor拦截的方法
             Set<Method> methods = signatureMap.get(method.getDeclaringClass());
+
+            /// 如果当前调用的方法是需要被拦截的方法
             if (methods != null && methods.contains(method)) {
+
+                // 调用拦截方法
                 return interceptor.intercept(new Invocation(target, method, args));
             }
+
+            // 调用目标对象方法
             return method.invoke(target, args);
         } catch (Exception e) {
             throw ExceptionUtil.unwrapThrowable(e);

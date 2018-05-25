@@ -17,6 +17,8 @@ package org.apache.ibatis.session;
 
 /**
  * 行记录范围
+ * 用于在结果集中定位映射的起始位置和结束位置
+ * 可以用来实现分页，但并未转换成分页相关sql语句，依然会查询全表数据
  *
  * @author Clinton Begin
  */

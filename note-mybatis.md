@@ -56,6 +56,8 @@ orm映射、查询缓存、动态sql、二级缓存
 
 - 重点
     - 简单映射、嵌套映射、嵌套查询的实现
+    - 二级缓存
+        - 在事务提交时才将TransactionalCache.entriesToAddOnCommit集合中缓存的数据写入到二级缓存
 
 - @Insert是直接配置SQL语句，而@InsertProvider则是通过SQL工厂类及对应的方法生产SQL语句，优点是可以根据不同的需求生产出不同的SQL
 

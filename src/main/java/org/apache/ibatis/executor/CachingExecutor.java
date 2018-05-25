@@ -34,6 +34,8 @@ import org.apache.ibatis.transaction.Transaction;
 
 /**
  * 支持二级缓存的执行器
+ * 与应用程序的声明周期相同
+ * 与cacheEnabled、<cache>、<cache-ref>、useCache配置项相关
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -96,26 +98,36 @@ public class CachingExecutor implements Executor {
     public <E> List<E> query(MappedStatement ms, Object parameterObject,
                              RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
 
+        // 获取查询语句所在命名空间对应的二级缓存
         Cache cache = ms.getCache();
 
-        // 二级缓存是否存在
+        // 若二级缓存存在
         if (cache != null) {
+            // 根据select节点的配置，决定是否需要清空二级缓存
             flushCacheIfRequired(ms);
 
-            // 检查是否开启了二级缓存
+            // 检测SQL节点的useCache配置以及是否使用了resultHandler配置
             if (ms.isUseCache() && resultHandler == null) {
+
+                // 二级缓存不能保存输出类型的参数，如果查询操作调用了包含输出参数的存储过程，则报错
                 ensureNoOutParams(ms, parameterObject, boundSql);
+
+                // 查询二级缓存
                 @SuppressWarnings("unchecked")
                 List<E> list = (List<E>) tcm.getObject(cache, key);
+
+                /// 二级缓存没有相应的结果对象，调用封装的Executor对象的query()，，其中会先查询一级缓存
                 if (list == null) {
                     list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+
+                    // 将查询结果保存到 TransactionalCache.entriesToAddOnCommit 集合中
                     tcm.putObject(cache, key, list); // issue #578 and #116
                 }
                 return list;
             }
         }
 
-        // 先查一级缓存，再查数据库
+        // 若没有启用二级缓存，先查一级缓存，再查数据库
         return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
     }
 

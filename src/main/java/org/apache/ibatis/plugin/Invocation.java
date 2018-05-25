@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 基于java反射的方法调用
+ * 封装基于反射调用方法的信息
  *
  * @author Clinton Begin
  */
@@ -47,6 +47,9 @@ public class Invocation {
         return args;
     }
 
+    /**
+     * 调用目标方法
+     */
     public Object proceed() throws InvocationTargetException, IllegalAccessException {
         return method.invoke(target, args);
     }

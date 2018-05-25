@@ -36,6 +36,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * 取回数据库生成的自增id
+ * 对应于 useGeneratedKeys 配置项
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu
@@ -75,16 +76,24 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
             final String[] keyProperties = ms.getKeyProperties();
             final ResultSetMetaData rsmd = rs.getMetaData();
             TypeHandler<?>[] typeHandlers = null;
+
+            /// 检测数据库生成的主键的列数与keyProperties属性指定的列数是否匹配
             if (keyProperties != null && rsmd.getColumnCount() >= keyProperties.length) {
                 for (Object parameter : parameters) {
+
                     // there should be one row for each statement (also one for each parameter)
+                    // parameters 中有多少元素，就对应生成多少个主键
                     if (!rs.next()) {
                         break;
                     }
+
+                    // 为用户传入的实参创建相应的 MetaObject 对象
                     final MetaObject metaParam = configuration.newMetaObject(parameter);
                     if (typeHandlers == null) {
                         typeHandlers = getTypeHandlers(typeHandlerRegistry, metaParam, keyProperties, rsmd);
                     }
+
+                    // 将生成的主键设直到用户传入的参数的对应位置
                     populateKeys(rs, metaParam, keyProperties, typeHandlers);
                 }
             }

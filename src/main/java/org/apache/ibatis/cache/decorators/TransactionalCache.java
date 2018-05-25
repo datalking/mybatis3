@@ -27,6 +27,7 @@ import org.apache.ibatis.logging.LogFactory;
 
 /**
  * 缓存装饰器 支持二级缓存事务相关的buffer
+ * 用于保存在某个SqlSession的某个事务中需要向某个二级缓存中添加的缓存数据
  * The 2nd level cache transactional buffer.
  * <p>
  * This class holds all cache entries that are to be added to the 2nd level cache during a Session.
@@ -44,11 +45,13 @@ public class TransactionalCache implements Cache {
     // 底层封装的二级缓存所对应的 Cache 对象
     private Cache delegate;
 
-    // 为 true 时，则表示当前 TransactionalCache 不可查询，且提交事务时会将底层 Cache 清空
+    // 若为true ，则表示当前 TransactionalCache 不可查询，且提交事务时会将底层 Cache 清空
     private boolean clearOnCommit;
+
     // 暂时记录添加到 TransactionalCache 中的数据。 在事务提交时，会将其中的数据添加到二级缓存中
     private Map<Object, Object> entriesToAddOnCommit;
-    // 记录缓存未命中的 CacheKey
+
+    // 记录缓存未命中的 CacheKey，一般是加了锁的缓存项，entriesToAddOnCommit集合可以看作entriesMissedlnCache集合子集
     private Set<Object> entriesMissedInCache;
 
     public TransactionalCache(Cache delegate) {

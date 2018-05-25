@@ -17,6 +17,7 @@ package org.apache.ibatis.jdbc;
 
 /**
  * sql语句 默认实现类
+ * 可以动态生成crud的sql语句
  *
  * @author Clinton Begin
  */

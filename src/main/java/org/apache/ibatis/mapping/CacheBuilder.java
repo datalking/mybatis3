@@ -112,6 +112,8 @@ public class CacheBuilder {
                 cache = newCacheDecoratorInstance(decorator, cache);
                 setCacheProperties(cache);
             }
+
+            // 会添加 SynchronizedCache 装饰器，从而保证线程安全
             cache = setStandardDecorators(cache);
         } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
             cache = new LoggingCache(cache);

@@ -20,6 +20,8 @@ import java.sql.SQLException;
 
 /**
  * PreparedStatement的参数处理器
+ * 为sql语句绑定实参
+ * <p>
  * A parameter handler sets the parameters of the {@code PreparedStatement}
  *
  * @author Clinton Begin
@@ -28,6 +30,7 @@ public interface ParameterHandler {
 
     Object getParameterObject();
 
+    // 为sql语句绑定实参
     void setParameters(PreparedStatement ps) throws SQLException;
 
 }

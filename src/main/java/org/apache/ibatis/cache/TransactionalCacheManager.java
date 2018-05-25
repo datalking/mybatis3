@@ -21,12 +21,13 @@ import java.util.Map;
 import org.apache.ibatis.cache.decorators.TransactionalCache;
 
 /**
- * 支持事务的缓存管理器
+ * 用于管理CachingExecutor使用的二级缓存对象
  *
  * @author Clinton Begin
  */
 public class TransactionalCacheManager {
 
+    // key是二级缓存对象，value是二级缓存对象的封装
     private Map<Cache, TransactionalCache> transactionalCaches = new HashMap<>();
 
     public void clear(Cache cache) {

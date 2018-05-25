@@ -31,22 +31,34 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * sqlSession管理器
+ * 支持创建sqlSession对象以及利用sqlSession操作数据库
  *
  * @author Larry Meadors
  */
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 
     private final SqlSessionFactory sqlSessionFactory;
-    private final SqlSession sqlSessionProxy;
 
+    // 记录与当前线程绑定的SqlSession对象，可避免在同一线程中多次创建SqlSession对象
     private ThreadLocal<SqlSession> localSqlSession = new ThreadLocal<>();
+
+    // localSqlSession对象的代理对象
+    private final SqlSession sqlSessionProxy;
 
     private SqlSessionManager(SqlSessionFactory sqlSessionFactory) {
         this.sqlSessionFactory = sqlSessionFactory;
+
+        // 基于jdk动态代理创建代理对象
         this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(
                 SqlSessionFactory.class.getClassLoader(),
                 new Class[]{SqlSession.class},
+                // 代理拦截方法
                 new SqlSessionInterceptor());
+    }
+
+    // 一般代替构造函数
+    public static SqlSessionManager newInstance(SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionManager(sqlSessionFactory);
     }
 
     public static SqlSessionManager newInstance(Reader reader) {
@@ -73,9 +85,6 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
         return new SqlSessionManager(new SqlSessionFactoryBuilder().build(inputStream, null, properties));
     }
 
-    public static SqlSessionManager newInstance(SqlSessionFactory sqlSessionFactory) {
-        return new SqlSessionManager(sqlSessionFactory);
-    }
 
     public void startManagedSession() {
         this.localSqlSession.set(openSession());
@@ -339,21 +348,32 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
         }
     }
 
+    /**
+     * jdk动态代理的拦截方法
+     */
     private class SqlSessionInterceptor implements InvocationHandler {
+
         public SqlSessionInterceptor() {
             // Prevent Synthetic Access
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
             final SqlSession sqlSession = SqlSessionManager.this.localSqlSession.get();
+
+            /// 若同一线程的sqlSession存在，则重用
             if (sqlSession != null) {
                 try {
+                    // 调用真正的 SqlSession 对象，完成数据库的相关操作
                     return method.invoke(sqlSession, args);
                 } catch (Throwable t) {
                     throw ExceptionUtil.unwrapThrowable(t);
                 }
-            } else {
+            }
+            /// 若不存在，则创建新的sqlSession
+            else {
+
                 final SqlSession autoSqlSession = openSession();
                 try {
                     final Object result = method.invoke(autoSqlSession, args);
@@ -363,6 +383,7 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
                     autoSqlSession.rollback();
                     throw ExceptionUtil.unwrapThrowable(t);
                 } finally {
+                    // 立即关闭
                     autoSqlSession.close();
                 }
             }

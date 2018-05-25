@@ -70,6 +70,7 @@ public interface Executor {
     // 关闭当前executor
     void close(boolean forceRollback);
 
+    // 检测executor是否已关闭
     boolean isClosed();
 
     void setExecutorWrapper(Executor executor);

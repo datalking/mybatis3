@@ -92,6 +92,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * mybatis全局唯一的配置类
+ * newXxx()方法创建的对象是代理对象
  *
  * @author Clinton Begin
  */
@@ -569,10 +570,15 @@ public class Configuration {
         return newExecutor(transaction, defaultExecutorType);
     }
 
+    /**
+     * 创建executor(代理)对象
+     */
     public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
         executorType = executorType == null ? defaultExecutorType : executorType;
         executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
         Executor executor;
+
+        /// 根据参数，选择合适的 Executor 实现
         if (ExecutorType.BATCH == executorType) {
             executor = new BatchExecutor(this, transaction);
         } else if (ExecutorType.REUSE == executorType) {
@@ -580,10 +586,15 @@ public class Configuration {
         } else {
             executor = new SimpleExecutor(this, transaction);
         }
+
+        /// 根据配置决定是否开启二级缓存的功能
         if (cacheEnabled) {
             executor = new CachingExecutor(executor);
         }
+
+        // 创建 Executor 的代理对象
         executor = (Executor) interceptorChain.pluginAll(executor);
+
         return executor;
     }
 

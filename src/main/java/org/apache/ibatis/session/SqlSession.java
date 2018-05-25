@@ -24,7 +24,7 @@ import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 
 /**
- * 数据库会话 接口
+ * 对外核心接口
  * 定义了常用的数据库操作以及事务的相关操作
  * <p>
  * The primary Java interface for working with MyBatis.
@@ -49,7 +49,7 @@ public interface SqlSession extends Closeable {
      *
      * @param <T>       the returned object type
      * @param statement Unique identifier matching the statement to use.
-     * @param parameter A parameter object to pass to the statement. sql语句需要绑定的实参来源
+     * @param parameter A parameter object to pass to the statement. sql语句需要绑定的实参
      * @return Mapped object
      */
     <T> T selectOne(String statement, Object parameter);
@@ -173,7 +173,7 @@ public interface SqlSession extends Closeable {
      * using a {@code ResultHandler}.
      *
      * @param statement Unique identifier matching the statement to use.
-     * @param handler   ResultHandler that will handle each retrieved row
+     * @param handler   ResultHandler that will handle each retrieved row 查询结果集指定的ResultHandler对象处理
      */
     void select(String statement, ResultHandler handler);
 

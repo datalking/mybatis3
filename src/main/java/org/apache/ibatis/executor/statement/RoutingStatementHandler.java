@@ -30,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * 类似策略模式，根据 MappedStatement 中指定的 statementType 宇段，创建对应 的 StatementHandJer 接口实现
+ * 根据MappedStatement中的statementType宇段，创建对应的StatementHandler接口实现对象
  *
  * @author Clinton Begin
  */
@@ -38,8 +38,12 @@ public class RoutingStatementHandler implements StatementHandler {
 
     private final StatementHandler delegate;
 
-    public RoutingStatementHandler(Executor executor, MappedStatement ms, Object parameter,
-                                   RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+    public RoutingStatementHandler(Executor executor,
+                                   MappedStatement ms,
+                                   Object parameter,
+                                   RowBounds rowBounds,
+                                   ResultHandler resultHandler,
+                                   BoundSql boundSql) {
 
         switch (ms.getStatementType()) {
             case STATEMENT:
@@ -79,7 +83,7 @@ public class RoutingStatementHandler implements StatementHandler {
 
     @Override
     public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
-        return delegate.<E>query(statement, resultHandler);
+        return delegate.query(statement, resultHandler);
     }
 
     @Override

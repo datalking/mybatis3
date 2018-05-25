@@ -47,6 +47,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * executor抽象类
  * 实现了executor的大部分方法，主要提供缓存管理和事务管理的功能
+ * 一级缓存两个功能：缓存查询结果，延迟加载
  *
  * @author Clinton Begin
  */
@@ -159,10 +160,12 @@ public abstract class BaseExecutor implements Executor {
         if (closed) {
             throw new ExecutorException("Executor was closed.");
         }
+
+        /// 非嵌套查询，并且<select>节点配置的flushCache属性为true时，才会清空一级缓存
         if (queryStack == 0 && ms.isFlushCacheRequired()) {
-            // 清空一级缓存
             clearLocalCache();
         }
+
         List<E> list;
         try {
             queryStack++;
@@ -217,7 +220,7 @@ public abstract class BaseExecutor implements Executor {
         DeferredLoad deferredLoad = new DeferredLoad(resultObject, property, key, localCache, configuration, targetType);
 
         if (deferredLoad.canLoad()) {
-            // 从缓存中加载对象，并设置到外层对象
+            // 一级缓存中已经记录了指定查询的结果对象，直接从缓存中加载对象，并设设置到外层对象中
             deferredLoad.load();
         } else {
             // 将DeferredLoad添加到延迟加载队列，待整个外层查询结束，再加载结果对象
@@ -306,17 +309,15 @@ public abstract class BaseExecutor implements Executor {
         }
     }
 
-    protected abstract int doUpdate(MappedStatement ms, Object parameter)
-            throws SQLException;
+    protected abstract int doUpdate(MappedStatement ms, Object parameter) throws SQLException;
 
-    protected abstract List<BatchResult> doFlushStatements(boolean isRollback)
-            throws SQLException;
+    protected abstract List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException;
 
-    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql)
-            throws SQLException;
+    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                                           ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
 
-    protected abstract <E> Cursor<E> doQueryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds, BoundSql boundSql)
-            throws SQLException;
+    protected abstract <E> Cursor<E> doQueryCursor(MappedStatement ms, Object parameter,
+                                                   RowBounds rowBounds, BoundSql boundSql) throws SQLException;
 
     protected void closeStatement(Statement statement) {
         if (statement != null) {
@@ -368,7 +369,7 @@ public abstract class BaseExecutor implements Executor {
         localCache.putObject(key, EXECUTION_PLACEHOLDER);
         try {
 
-            // ==== 执行sql语句，由BaseExecutor实现
+            // ==== 执行sql语句，由BaseExecutor子类实现
             list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
         } finally {
             // 删除占位符
@@ -410,7 +411,7 @@ public abstract class BaseExecutor implements Executor {
         private final String property;
         // 延迟加载的属性类型
         private final Class<?> targetType;
-        // 延迟加载的结采对象在一级缓存中相应的 CacheKey 对象
+        // 延迟加载的结果对象在一级缓存中相应的 CacheKey 对象
         private final CacheKey key;
         // 一级缓存，与 BaseExecutor的 localCache 字段指向同－ PerpetualCache 对象
         private final PerpetualCache localCache;

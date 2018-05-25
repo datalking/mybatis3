@@ -37,6 +37,7 @@ import org.apache.ibatis.transaction.Transaction;
 
 /**
  * 批量执行sql的executor
+ * 不支持select
  *
  * @author Jeff Butler
  */
@@ -64,11 +65,14 @@ public class BatchExecutor extends BaseExecutor {
         final BoundSql boundSql = handler.getBoundSql();
         final String sql = boundSql.getSql();
         final Statement stmt;
+
+        /// 若当前执行的SQL模式与上次执行的SQL模式相同且对应的MappedStatement对象相同
         if (sql.equals(currentSql) && ms.equals(currentStatement)) {
             int last = statementList.size() - 1;
             stmt = statementList.get(last);
             applyTransactionTimeout(stmt);
             handler.parameterize(stmt);//fix Issues 322
+            // 查找对应的 BatchResult 对象，并记录用户传入的实参
             BatchResult batchResult = batchResultList.get(last);
             batchResult.addParameterObject(parameterObject);
         } else {

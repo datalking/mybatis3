@@ -33,7 +33,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * ParameterHandler 默认实现类
+ * ParameterHandler 唯一默认实现类
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -42,7 +42,9 @@ public class DefaultParameterHandler implements ParameterHandler {
 
     private final TypeHandlerRegistry typeHandlerRegistry;
 
+    // SQL节点相应的配置信息
     private final MappedStatement mappedStatement;
+    // 用户传入的实参对象
     private final Object parameterObject;
     private BoundSql boundSql;
     private Configuration configuration;
@@ -60,13 +62,17 @@ public class DefaultParameterHandler implements ParameterHandler {
         return parameterObject;
     }
 
+    // 根据BoundSql.parameterMappings中记录的参数名称查找相应实参，然后与SQL语句绑定
     @Override
     public void setParameters(PreparedStatement ps) {
         ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
+
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         if (parameterMappings != null) {
             for (int i = 0; i < parameterMappings.size(); i++) {
                 ParameterMapping parameterMapping = parameterMappings.get(i);
+
+                // 过滤掉存储过程中的输出参数
                 if (parameterMapping.getMode() != ParameterMode.OUT) {
                     Object value;
                     String propertyName = parameterMapping.getProperty();
@@ -75,21 +81,23 @@ public class DefaultParameterHandler implements ParameterHandler {
                     } else if (parameterObject == null) {
                         value = null;
                     } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+                        // 实参可以直接通过TypeHandler转换成JdbcType
                         value = parameterObject;
                     } else {
                         MetaObject metaObject = configuration.newMetaObject(parameterObject);
                         value = metaObject.getValue(propertyName);
                     }
+
                     TypeHandler typeHandler = parameterMapping.getTypeHandler();
                     JdbcType jdbcType = parameterMapping.getJdbcType();
                     if (value == null && jdbcType == null) {
                         jdbcType = configuration.getJdbcTypeForNull();
                     }
                     try {
+
+                        // 为SQL语句绑定相应的实参
                         typeHandler.setParameter(ps, i + 1, value, jdbcType);
-                    } catch (TypeException e) {
-                        throw new TypeException("Could not set parameters for mapping: " + parameterMapping + ". Cause: " + e, e);
-                    } catch (SQLException e) {
+                    } catch (TypeException | SQLException e) {
                         throw new TypeException("Could not set parameters for mapping: " + parameterMapping + ". Cause: " + e, e);
                     }
                 }

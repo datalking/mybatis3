@@ -42,7 +42,7 @@ public class BoundSql {
     // SQL语句，可能含有 ? 占位符
     private String sql;
 
-    // SQL中的参数属性集合
+    // SQL中的?占位符对应的参数属性集合
     private List<ParameterMapping> parameterMappings;
 
     // 客户端执行SQL时传入的实际参数
